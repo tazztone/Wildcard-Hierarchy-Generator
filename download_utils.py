@@ -84,7 +84,7 @@ def ensure_openimages_data(data_dir: str = ".") -> Tuple[str, str]:
     """
     # Open Images v4 hierarchy (still used for newer versions)
     hierarchy_url = "https://storage.googleapis.com/openimages/2018_04/bbox_labels_600_hierarchy.json"
-    # Open Images v7 class descriptions
+    # Open Images v7 class descriptions (Updated to V7)
     classes_url = "https://storage.googleapis.com/openimages/v7/oidv7-class-descriptions.csv"
 
     hierarchy_path = os.path.join(data_dir, "bbox_labels_600_hierarchy.json")

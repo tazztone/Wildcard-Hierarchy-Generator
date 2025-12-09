@@ -6,7 +6,7 @@ A Python tool to generate WordNet-style hierarchy YAML files from various datase
 
 - **ImageNet**: Generate hierarchies from ImageNet WNIDs (legacy) or the full ImageNet tree filtered to the standard 1000 classes.
 - **COCO**: Generate hierarchy from COCO categories (supports local optimization to avoid large downloads).
-- **Open Images**: Generate hierarchy from Open Images V5 data.
+- **Open Images**: Generate hierarchy from Open Images V7 data.
 - **Automation**: Includes scripts to generate all hierarchies in one go.
 
 ## Datasets
@@ -85,7 +85,7 @@ python app.py coco --output output/coco.yaml
 *   **Optimization**: If `coco_categories.json` is present in the root directory, the tool uses it instead of downloading the large (200MB+) annotations zip file.
 
 #### Open Images
-Generates the Open Images V5 hierarchy.
+Generates the Open Images V7 hierarchy.
 
 ```bash
 python app.py openimages --output output/openimages.yaml

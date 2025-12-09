@@ -32,7 +32,7 @@ This project is a utility to generate a WordNet hierarchy from ImageNet WNIDs. I
 The project relies on external dataset structures:
 *   **ImageNet**: Accessed via NLTK WordNet.
 *   **COCO**: Uses `coco_categories.json` or downloads annotations.
-*   **Open Images**: Downloads class descriptions and hierarchy JSON if not present.
+*   **Open Images**: Downloads class descriptions (V7) and hierarchy JSON if not present.
 
 ## Common Tasks
 
