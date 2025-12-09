@@ -1,20 +1,23 @@
 #!/usr/bin/env python3
 """
-ImageNet Hierarchy Generator
+Hierarchy Generator App
 
-This script generates a WordNet hierarchy YAML from a list of ImageNet WNIDs.
-It accepts WNIDs directly via command-line arguments or through text files.
+This script generates YAML hierarchies for different datasets (ImageNet, COCO, Open Images).
 """
 
 import argparse
 import logging
 import os
 import sys
-from typing import List, Dict, Optional, Any
+import json
+import csv
+from typing import List, Dict, Optional, Any, Set
 
+import yaml
 import nltk
 from nltk.corpus import wordnet as wn
-import yaml
+
+import download_utils
 
 # Configure logging
 logging.basicConfig(
@@ -24,11 +27,10 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
+# --- Legacy ImageNet Logic (Bottom-Up from WNIDs) ---
+
 def ensure_nltk_data() -> None:
-    """
-    Ensures that the necessary NLTK WordNet data is available.
-    Downloads it if not present.
-    """
+    """Ensures NLTK WordNet data is available."""
     try:
         wn.ensure_loaded()
     except LookupError:
@@ -41,182 +43,276 @@ def ensure_nltk_data() -> None:
             sys.exit(1)
 
 def get_synset_from_wnid(wnid: str) -> Optional[Any]:
-    """
-    Converts an ImageNet WNID (e.g., 'n02084071') to an NLTK Synset object.
-
-    ImageNet IDs are formatted as: <pos><offset>, e.g., 'n' + '02084071'.
-
-    Args:
-        wnid: The WordNet ID string.
-
-    Returns:
-        The NLTK Synset object or None if not found/error.
-    """
     try:
         if len(wnid) < 2:
-            logger.warning(f"Invalid WNID format: {wnid}")
             return None
-
-        pos = wnid[0] # 'n' for noun
+        pos = wnid[0]
         offset_str = wnid[1:]
-
         if not offset_str.isdigit():
-             logger.warning(f"Invalid WNID offset (must be digits): {wnid}")
              return None
-
-        offset = int(offset_str) # 02084071
-
-        # wordnet.synset_from_pos_and_offset is the bridge between ID and hierarchy
+        offset = int(offset_str)
         return wn.synset_from_pos_and_offset(pos, offset)
     except Exception as e:
         logger.error(f"Error finding synset for {wnid}: {e}")
         return None
 
-def build_hierarchy_tree(wnids: List[str]) -> Dict[str, Any]:
-    """
-    Takes a list of WNIDs and builds a nested dictionary representing the 
-    WordNet hierarchy.
-
-    Args:
-        wnids: A list of WordNet IDs.
-
-    Returns:
-        A nested dictionary representing the hierarchy.
-    """
+def build_hierarchy_tree_legacy(wnids: List[str]) -> Dict[str, Any]:
     tree: Dict[str, Any] = {}
-
     for wnid in wnids:
         synset = get_synset_from_wnid(wnid)
         if not synset:
             continue
-
-        # Get paths to the root 'entity'. 
-        # Note: WordNet is a DAG (Directed Acyclic Graph), so a synset can have 
-        # multiple parent paths. We usually take the first one for a clean tree structure.
         paths = synset.hypernym_paths()
-        
         if not paths:
-            logger.warning(f"No hypernym paths found for {wnid}")
             continue
-
-        # We take the path that is likely the most descriptive (often the longest)
-        # or simply the first one provided by NLTK.
-        primary_path = paths[0] 
-        
-        # The path includes the root down to the leaf.
-        # We need to merge this path into our main 'tree' dictionary.
+        primary_path = paths[0]
         current_level = tree
         for node in primary_path:
-            # We use a string representation "name (id)" for the key
-            # wn.synset identifier looks like 'dog.n.01'
             node_name = node.name().split('.')[0]
-            
-            # Format: "name (offset)" to ensure uniqueness if names collide
-            # converting offset back to string id: n + 8 digit padded
-            # Note: We are not using the offset in the key name in the user's example,
-            # just "node_name". If collision handling is needed, we might need to adjust.
-            # But the logic below follows the user's snippet: key = f"{node_name}"
-            
-            # Create a descriptive key
             key = f"{node_name}"
-            
-            # Initialize this key if not present
             if key not in current_level:
                 current_level[key] = {}
-            
-            # Move down into this node
             current_level = current_level[key]
-            
-        # At the end of the path (the specific breed/object), we can leave an empty dict
-        # or mark it as a leaf. The loop naturally leaves it as a dict key pointing to {}.
-
     return tree
 
 def load_wnids(inputs: List[str]) -> List[str]:
-    """
-    Loads WNIDs from a list of inputs which can be direct IDs or file paths.
-
-    Args:
-        inputs: List of strings (IDs or file paths).
-
-    Returns:
-        List of unique WNIDs.
-    """
     wnids_to_process = []
-
     for input_str in inputs:
         if os.path.isfile(input_str):
-            # It's a file, read IDs from it
             try:
                 with open(input_str, 'r') as f:
                     lines = [line.strip() for line in f if line.strip()]
-                    logger.info(f"Loaded {len(lines)} IDs from file: {input_str}")
                     wnids_to_process.extend(lines)
             except Exception as e:
                 logger.error(f"Error reading file {input_str}: {e}")
         else:
-            # It's a direct WNID
             wnids_to_process.append(input_str)
-
-    # Remove duplicates
     return list(dict.fromkeys(wnids_to_process))
 
+def handle_imagenet_wnid(args) -> None:
+    ensure_nltk_data()
+
+    if not args.inputs:
+        logger.info("No input provided. Using sample IDs.")
+        wnids = ['n02084071', 'n02113799', 'n07753592'] # Simplified sample
+    else:
+        wnids = load_wnids(args.inputs)
+
+    if not wnids:
+        logger.warning("No WNIDs to process.")
+        return
+
+    logger.info(f"Processing {len(wnids)} IDs (Bottom-Up)...")
+    hierarchy = build_hierarchy_tree_legacy(wnids)
+
+    with open(args.output, 'w') as f:
+        yaml.dump(hierarchy, f, sort_keys=False, default_flow_style=False, indent=4)
+    logger.info(f"Saved to {args.output}")
+
+
+# --- ImageNet Tree Logic (Top-Down Recursive) ---
+
+def load_valid_wnids(json_path: str) -> Set[str]:
+    """Loads valid WNIDs from the ImageNet class index JSON."""
+    try:
+        with open(json_path, 'r') as f:
+            data = json.load(f)
+        # format: {"0": ["n01440764", "tench"], ...}
+        valid_wnids = set()
+        for key, value in data.items():
+            if isinstance(value, list) and len(value) >= 1:
+                valid_wnids.add(value[0])
+        return valid_wnids
+    except Exception as e:
+        logger.error(f"Failed to load valid WNIDs: {e}")
+        return set()
+
+# Re-implementing strictly following the user snippet logic but adding filter
+def build_hierarchy_snippet_style(synset, valid_wnids: Optional[Set[str]], depth=0, max_depth=3):
+    if depth > max_depth:
+        return []
+
+    name = synset.lemmas()[0].name().replace('_', ' ')
+    children = synset.hyponyms()
+
+    if not children:
+        # Leaf
+        if valid_wnids is not None:
+            wnid = f"{synset.pos()}{synset.offset():08d}"
+            if wnid not in valid_wnids:
+                return None # Filter out
+        return name
+
+    child_nodes = {}
+    has_valid_children = False
+    
+    for child in children:
+        child_name = child.lemmas()[0].name().replace('_', ' ')
+        child_content = build_hierarchy_snippet_style(child, valid_wnids, depth + 1, max_depth)
+
+        if child_content:
+            child_nodes[child_name] = child_content
+            has_valid_children = True
+
+    if not has_valid_children:
+        # If no children survived filter, and we are not a leaf in original graph,
+        # we treat this node as a leaf candidate?
+        # Or we prune it?
+        # If I am 'carnivore', and I filtered all my children, do I keep 'carnivore'?
+        # Probably not if we want a classification tree.
+        # But if valid_wnids is None, we keep everything.
+        if valid_wnids is None:
+             return name # Treat as leaf if max depth reached or no children
+        else:
+             # Check if I am valid myself
+             wnid = f"{synset.pos()}{synset.offset():08d}"
+             if wnid in valid_wnids:
+                 return name
+             return None
+
+    return child_nodes
+
+def handle_imagenet_tree(args) -> None:
+    ensure_nltk_data()
+    
+    valid_wnids = None
+    if args.filter:
+        logger.info("Ensuring ImageNet list is available...")
+        list_path = download_utils.ensure_imagenet_list()
+        valid_wnids = load_valid_wnids(list_path)
+        logger.info(f"Loaded {len(valid_wnids)} valid WNIDs for filtering.")
+    
+    root_str = args.root
+    try:
+        root_synset = wn.synset(root_str)
+    except Exception:
+        logger.error(f"Could not find root synset: {root_str}")
+        return
+
+    logger.info(f"Building hierarchy from {root_str} (Top-Down, max_depth={args.depth})...")
+
+    # We wrap the result in a dict with the root name
+    root_name = root_synset.lemmas()[0].name().replace('_', ' ')
+    content = build_hierarchy_snippet_style(root_synset, valid_wnids, max_depth=args.depth)
+
+    if content:
+        hierarchy = {root_name: content}
+    else:
+        hierarchy = {}
+        logger.warning("Resulting hierarchy is empty (possibly due to aggressive filtering).")
+
+    with open(args.output, 'w') as f:
+        yaml.dump(hierarchy, f, sort_keys=False, default_flow_style=False, indent=4)
+    logger.info(f"Saved to {args.output}")
+
+
+# --- COCO Logic ---
+
+def handle_coco(args) -> None:
+    logger.info("Ensuring COCO data is available...")
+    json_path = download_utils.ensure_coco_data()
+
+    logger.info(f"Loading {json_path}...")
+    with open(json_path, 'r') as f:
+        data = json.load(f)
+
+    logger.info("Processing COCO categories...")
+    hierarchy = {}
+    for cat in data['categories']:
+        supercat = cat['supercategory']
+        name = cat['name']
+
+        if supercat not in hierarchy:
+            hierarchy[supercat] = []
+
+        hierarchy[supercat].append(name)
+
+    with open(args.output, 'w') as f:
+        yaml.dump(hierarchy, f, sort_keys=False)
+    logger.info(f"Saved to {args.output}")
+
+
+# --- Open Images Logic ---
+
+def parse_openimages_node(node, id_to_name):
+    label_id = node.get('LabelName')
+    name = id_to_name.get(label_id, label_id)
+
+    if 'Subcategories' in node:
+        children = {}
+        for sub in node['Subcategories']:
+            child_res = parse_openimages_node(sub, id_to_name)
+            if isinstance(child_res, dict):
+                children.update(child_res)
+            else:
+                if 'misc' not in children:
+                    children['misc'] = []
+                children['misc'].append(child_res)
+        return {name: children}
+    else:
+        return name
+
+def handle_openimages(args) -> None:
+    logger.info("Ensuring Open Images data is available...")
+    hierarchy_path, classes_path = download_utils.ensure_openimages_data()
+
+    logger.info("Loading class descriptions...")
+    id_to_name = {}
+    with open(classes_path, 'r') as f:
+        reader = csv.reader(f)
+        for row in reader:
+            if len(row) >= 2:
+                id_to_name[row[0]] = row[1]
+
+    logger.info("Loading hierarchy JSON...")
+    with open(hierarchy_path, 'r') as f:
+        data = json.load(f)
+
+    logger.info("Building hierarchy...")
+    final_yaml = parse_openimages_node(data, id_to_name)
+
+    with open(args.output, 'w') as f:
+        yaml.dump(final_yaml, f, sort_keys=False)
+    logger.info(f"Saved to {args.output}")
+
+
+# --- Main ---
+
 def main() -> None:
-    parser = argparse.ArgumentParser(description="Generate a WordNet hierarchy YAML from ImageNet WNIDs.")
-    parser.add_argument('inputs', nargs='*', help="List of WNIDs (e.g., n02084071) or paths to text files containing WNIDs.")
-    parser.add_argument('-o', '--output', default='imagenet_hierarchy.yaml', help="Output YAML file path (default: imagenet_hierarchy.yaml)")
-    parser.add_argument('-v', '--verbose', action='store_true', help="Enable verbose debug logging")
+    parser = argparse.ArgumentParser(description="Wildcard Hierarchy Generator")
+    subparsers = parser.add_subparsers(dest='command', required=True)
+
+    # Legacy ImageNet (List of IDs -> Hierarchy)
+    p_wnid = subparsers.add_parser('imagenet-wnid', help='Build hierarchy from list of WNIDs (Bottom-Up)')
+    p_wnid.add_argument('inputs', nargs='*', help="WNIDs or file paths")
+    p_wnid.add_argument('-o', '--output', default='imagenet_hierarchy.yaml')
+    p_wnid.add_argument('-v', '--verbose', action='store_true')
+    p_wnid.set_defaults(func=handle_imagenet_wnid)
+
+    # New ImageNet (Root -> Recursive Children)
+    p_tree = subparsers.add_parser('imagenet-tree', help='Build hierarchy recursively from a root node (Top-Down)')
+    p_tree.add_argument('--root', default='animal.n.01', help="Root synset (default: animal.n.01)")
+    p_tree.add_argument('--depth', type=int, default=3, help="Max recursion depth")
+    p_tree.add_argument('--filter', action='store_true', help="Filter using ImageNet 1k list")
+    p_tree.add_argument('-o', '--output', default='wildcards_imagenet.yaml')
+    p_tree.set_defaults(func=handle_imagenet_tree)
+
+    # COCO
+    p_coco = subparsers.add_parser('coco', help='Build hierarchy from COCO annotations')
+    p_coco.add_argument('-o', '--output', default='wildcards_coco.yaml')
+    p_coco.set_defaults(func=handle_coco)
+
+    # Open Images
+    p_oi = subparsers.add_parser('openimages', help='Build hierarchy from Open Images data')
+    p_oi.add_argument('-o', '--output', default='wildcards_openimages.yaml')
+    p_oi.set_defaults(func=handle_openimages)
 
     args = parser.parse_args()
 
-    if args.verbose:
+    if hasattr(args, 'verbose') and args.verbose:
         logger.setLevel(logging.DEBUG)
 
-    ensure_nltk_data()
-
-    wnids_to_process = []
-
-    # If no inputs provided, fall back to a hardcoded sample for demonstration
-    if not args.inputs:
-        logger.info("No input provided. Using sample ImageNet IDs for demonstration.")
-        wnids_to_process = [
-            'n02084071', # Dog (generic)
-            'n02113799', # Siberian husky
-            'n02110806', # Basenji
-            'n02124075', # Egyptian cat
-            'n03595614', # Jersey (cattle)
-            'n04467665', # Trailer truck
-            'n04285008', # Sports car
-            'n07747607', # Orange (fruit)
-            'n07753592', # Banana
-        ]
-    else:
-        wnids_to_process = load_wnids(args.inputs)
-    
-    if not wnids_to_process:
-        logger.warning("No valid WNIDs found to process.")
-        return
-
-    logger.info(f"Processing {len(wnids_to_process)} ImageNet IDs...")
-    
-    hierarchy = build_hierarchy_tree(wnids_to_process)
-    
-    # Dump to YAML
-    # We use a custom sorting to keep it somewhat tidy
-    try:
-        yaml_output = yaml.dump(hierarchy, sort_keys=False, default_flow_style=False, indent=4)
-
-        if args.verbose:
-             print("\n--- Generated YAML Hierarchy ---\n")
-             print(yaml_output)
-
-        # Save to file
-        with open(args.output, 'w') as f:
-            f.write(yaml_output)
-        logger.info(f"Saved hierarchy to '{args.output}'")
-    except Exception as e:
-        logger.error(f"Failed to save YAML output: {e}")
-        sys.exit(1)
+    args.func(args)
 
 if __name__ == "__main__":
     main()
