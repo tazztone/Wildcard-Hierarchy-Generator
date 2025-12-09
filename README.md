@@ -9,6 +9,25 @@ A Python tool to generate WordNet-style hierarchy YAML files from various datase
 - **Open Images**: Generate hierarchy from Open Images V5 data.
 - **Automation**: Includes scripts to generate all hierarchies in one go.
 
+## Datasets
+
+Detailed information about the datasets supported by this tool:
+
+### ImageNet
+- **Website**: [http://www.image-net.org/](http://www.image-net.org/)
+- **Overview**: ImageNet is an image database organized according to the WordNet hierarchy (currently only the nouns), in which each node of the hierarchy is depicted by hundreds and thousands of images. The project has been instrumental in advancing computer vision and deep learning research.
+- **Usage**: This tool uses NLTK's interface to WordNet to generate hierarchies based on ImageNet's structure (WordNet 3.0).
+
+### COCO (Common Objects in Context)
+- **Website**: [https://cocodataset.org/](https://cocodataset.org/)
+- **Overview**: COCO is a large-scale object detection, segmentation, and captioning dataset. It features 80 object categories (like person, bicycle, car) and is widely used for benchmarking object detection models.
+- **Usage**: The hierarchy is flat (Categories -> Supercategories).
+
+### Open Images
+- **Website**: [https://storage.googleapis.com/openimages/web/index.html](https://storage.googleapis.com/openimages/web/index.html)
+- **Overview**: Open Images is a dataset of ~9 million images annotated with image-level labels, object bounding boxes, object segmentation masks, visual relationships, and localized narratives. It contains a much larger number of categories than COCO or ImageNet 1k.
+- **Usage**: The hierarchy is derived from the `bbox_labels_600_hierarchy.json` provided by Open Images.
+
 ## Installation
 
 1.  **Clone the repository**:
