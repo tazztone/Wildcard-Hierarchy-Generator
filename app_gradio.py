@@ -43,6 +43,7 @@ def preview_imagenet_wnid(wnid_text):
         else:
              h = app.generate_imagenet_wnid_hierarchy(wnids)
              msg = f"Ready to generate.\nTotal items: {count}"
+        h = app.convert_to_wildcard_format(h)
         return format_yaml_preview(h), msg
     except Exception as e:
         return f"Error: {e}", "Error"
@@ -54,6 +55,7 @@ def save_imagenet_wnid(wnid_text, output_path):
 
     def _run():
         h = app.generate_imagenet_wnid_hierarchy(wnids)
+        h = app.convert_to_wildcard_format(h)
         app.save_hierarchy(h, output_path)
         return f"Successfully saved to {output_path} ({len(wnids)} items processed)"
 
@@ -67,6 +69,7 @@ def preview_21k():
 
         # Sample
         h = app.generate_imagenet_wnid_hierarchy(wnids[:50])
+        h = app.convert_to_wildcard_format(h)
         msg = f"Ready to generate.\nTotal items: {count}\n(Preview showing first 50)"
         return format_yaml_preview(h), msg
     except Exception as e:
@@ -77,6 +80,7 @@ def save_21k(output_path):
         ids_path, _ = app.download_utils.ensure_imagenet21k_data()
         wnids = app.load_wnids([ids_path])
         h = app.generate_imagenet_wnid_hierarchy(wnids)
+        h = app.convert_to_wildcard_format(h)
         app.save_hierarchy(h, output_path)
         return f"Successfully saved to {output_path} ({len(wnids)} items processed)"
     return safe_execution(_run)
@@ -93,6 +97,7 @@ def load_file_content(file_path):
 def preview_tree(root, depth, filter_en):
     try:
         h = app.generate_imagenet_tree_hierarchy(root, int(depth), filter_en)
+        h = app.convert_to_wildcard_format(h)
         # Count nodes roughly
         yaml_str = format_yaml_preview(h)
         lines = yaml_str.count('\n') + 1
@@ -104,6 +109,7 @@ def preview_tree(root, depth, filter_en):
 def save_tree(root, depth, filter_en, path):
     def _run():
         h = app.generate_imagenet_tree_hierarchy(root, int(depth), filter_en)
+        h = app.convert_to_wildcard_format(h)
         app.save_hierarchy(h, path)
         return f"Successfully saved to {path}"
     return safe_execution(_run)
@@ -111,6 +117,7 @@ def save_tree(root, depth, filter_en, path):
 def preview_coco():
     try:
         h = app.generate_coco_hierarchy()
+        h = app.convert_to_wildcard_format(h)
         count = sum(len(v) for v in h.values())
         msg = f"Ready to generate.\nFound {len(h)} supercategories and ~{count} categories."
         return format_yaml_preview(h), msg
@@ -120,6 +127,7 @@ def preview_coco():
 def save_coco(path):
     def _run():
         h = app.generate_coco_hierarchy()
+        h = app.convert_to_wildcard_format(h)
         app.save_hierarchy(h, path)
         return f"Successfully saved to {path}"
     return safe_execution(_run)
@@ -127,6 +135,7 @@ def save_coco(path):
 def preview_oi():
     try:
         h = app.generate_openimages_hierarchy()
+        h = app.convert_to_wildcard_format(h)
         # Rough count of lines in YAML
         yaml_str = format_yaml_preview(h)
         msg = f"Ready to generate.\nOpen Images hierarchy loaded."
@@ -137,6 +146,7 @@ def preview_oi():
 def save_oi(path):
     def _run():
         h = app.generate_openimages_hierarchy()
+        h = app.convert_to_wildcard_format(h)
         app.save_hierarchy(h, path)
         return f"Successfully saved to {path}"
     return safe_execution(_run)
