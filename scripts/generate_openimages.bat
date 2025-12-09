@@ -1,0 +1,3 @@
+@echo off
+echo Generating Open Images Hierarchy...
+python app.py openimages --output output\openimages.yaml

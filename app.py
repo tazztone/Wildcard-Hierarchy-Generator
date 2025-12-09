@@ -29,6 +29,12 @@ logger = logging.getLogger(__name__)
 
 # --- Legacy ImageNet Logic (Bottom-Up from WNIDs) ---
 
+def ensure_output_dir(file_path: str) -> None:
+    """Ensures the directory for the output file exists."""
+    directory = os.path.dirname(file_path)
+    if directory:
+        os.makedirs(directory, exist_ok=True)
+
 def ensure_nltk_data() -> None:
     """Ensures NLTK WordNet data is available."""
     try:
@@ -105,6 +111,7 @@ def handle_imagenet_wnid(args) -> None:
     logger.info(f"Processing {len(wnids)} IDs (Bottom-Up)...")
     hierarchy = build_hierarchy_tree_legacy(wnids)
 
+    ensure_output_dir(args.output)
     with open(args.output, 'w') as f:
         yaml.dump(hierarchy, f, sort_keys=False, default_flow_style=False, indent=4)
     logger.info(f"Saved to {args.output}")
@@ -201,6 +208,7 @@ def handle_imagenet_tree(args) -> None:
         hierarchy = {}
         logger.warning("Resulting hierarchy is empty (possibly due to aggressive filtering).")
 
+    ensure_output_dir(args.output)
     with open(args.output, 'w') as f:
         yaml.dump(hierarchy, f, sort_keys=False, default_flow_style=False, indent=4)
     logger.info(f"Saved to {args.output}")
@@ -209,16 +217,22 @@ def handle_imagenet_tree(args) -> None:
 # --- COCO Logic ---
 
 def handle_coco(args) -> None:
-    logger.info("Ensuring COCO data is available...")
-    json_path = download_utils.ensure_coco_data()
-
-    logger.info(f"Loading {json_path}...")
-    with open(json_path, 'r') as f:
-        data = json.load(f)
+    # Use local category file if available to avoid large downloads
+    if os.path.exists("coco_categories.json"):
+        logger.info("Using local coco_categories.json...")
+        with open("coco_categories.json", 'r') as f:
+            categories = json.load(f)
+    else:
+        logger.info("Ensuring COCO data is available...")
+        json_path = download_utils.ensure_coco_data()
+        logger.info(f"Loading {json_path}...")
+        with open(json_path, 'r') as f:
+            data = json.load(f)
+        categories = data['categories']
 
     logger.info("Processing COCO categories...")
     hierarchy = {}
-    for cat in data['categories']:
+    for cat in categories:
         supercat = cat['supercategory']
         name = cat['name']
 
@@ -227,6 +241,7 @@ def handle_coco(args) -> None:
 
         hierarchy[supercat].append(name)
 
+    ensure_output_dir(args.output)
     with open(args.output, 'w') as f:
         yaml.dump(hierarchy, f, sort_keys=False)
     logger.info(f"Saved to {args.output}")
@@ -238,9 +253,20 @@ def parse_openimages_node(node, id_to_name):
     label_id = node.get('LabelName')
     name = id_to_name.get(label_id, label_id)
 
-    if 'Subcategories' in node:
+    # Handle implicit root
+    if label_id == '/m/0bl9f' and name == label_id:
+        name = 'Entity'
+
+    # The JSON key is usually 'Subcategory', but let's be safe
+    sub_key = None
+    if 'Subcategory' in node:
+        sub_key = 'Subcategory'
+    elif 'Subcategories' in node:
+        sub_key = 'Subcategories'
+
+    if sub_key:
         children = {}
-        for sub in node['Subcategories']:
+        for sub in node[sub_key]:
             child_res = parse_openimages_node(sub, id_to_name)
             if isinstance(child_res, dict):
                 children.update(child_res)
@@ -271,6 +297,7 @@ def handle_openimages(args) -> None:
     logger.info("Building hierarchy...")
     final_yaml = parse_openimages_node(data, id_to_name)
 
+    ensure_output_dir(args.output)
     with open(args.output, 'w') as f:
         yaml.dump(final_yaml, f, sort_keys=False)
     logger.info(f"Saved to {args.output}")

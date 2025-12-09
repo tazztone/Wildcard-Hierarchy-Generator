@@ -1,0 +1,3 @@
+@echo off
+echo Generating COCO Hierarchy...
+python app.py coco --output output\coco.yaml

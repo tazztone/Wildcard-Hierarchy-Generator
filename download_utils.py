@@ -57,6 +57,12 @@ def ensure_coco_data(data_dir: str = ".") -> str:
 
     unzip_file(zip_path, data_dir)
 
+    # Remove zip to save space
+    try:
+        os.remove(zip_path)
+    except Exception as e:
+        logger.warning(f"Could not delete {zip_path}: {e}")
+
     if not os.path.exists(json_path):
          raise FileNotFoundError(f"Expected {json_path} after extraction but not found.")
 
