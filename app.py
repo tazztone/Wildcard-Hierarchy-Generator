@@ -27,7 +27,7 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-# --- Legacy ImageNet Logic (Bottom-Up from WNIDs) ---
+# --- Shared Utils ---
 
 def ensure_output_dir(file_path: str) -> None:
     """Ensures the directory for the output file exists."""
@@ -47,6 +47,14 @@ def ensure_nltk_data() -> None:
         except Exception as e:
             logger.error(f"Failed to download WordNet data: {e}")
             sys.exit(1)
+
+def save_hierarchy(hierarchy: Any, output_path: str) -> None:
+    ensure_output_dir(output_path)
+    with open(output_path, 'w') as f:
+        yaml.dump(hierarchy, f, sort_keys=False, default_flow_style=False, indent=4)
+    logger.info(f"Saved to {output_path}")
+
+# --- Legacy ImageNet Logic (Bottom-Up from WNIDs) ---
 
 def get_synset_from_wnid(wnid: str) -> Optional[Any]:
     try:
@@ -95,26 +103,24 @@ def load_wnids(inputs: List[str]) -> List[str]:
             wnids_to_process.append(input_str)
     return list(dict.fromkeys(wnids_to_process))
 
-def handle_imagenet_wnid(args) -> None:
+def generate_imagenet_wnid_hierarchy(wnids: List[str]) -> Dict[str, Any]:
     ensure_nltk_data()
+    if not wnids:
+        logger.warning("No WNIDs to process.")
+        return {}
 
+    logger.info(f"Processing {len(wnids)} IDs (Bottom-Up)...")
+    return build_hierarchy_tree_legacy(wnids)
+
+def handle_imagenet_wnid(args) -> None:
     if not args.inputs:
         logger.info("No input provided. Using sample IDs.")
         wnids = ['n02084071', 'n02113799', 'n07753592'] # Simplified sample
     else:
         wnids = load_wnids(args.inputs)
 
-    if not wnids:
-        logger.warning("No WNIDs to process.")
-        return
-
-    logger.info(f"Processing {len(wnids)} IDs (Bottom-Up)...")
-    hierarchy = build_hierarchy_tree_legacy(wnids)
-
-    ensure_output_dir(args.output)
-    with open(args.output, 'w') as f:
-        yaml.dump(hierarchy, f, sort_keys=False, default_flow_style=False, indent=4)
-    logger.info(f"Saved to {args.output}")
+    hierarchy = generate_imagenet_wnid_hierarchy(wnids)
+    save_hierarchy(hierarchy, args.output)
 
 
 # --- ImageNet Tree Logic (Top-Down Recursive) ---
@@ -134,7 +140,6 @@ def load_valid_wnids(json_path: str) -> Set[str]:
         logger.error(f"Failed to load valid WNIDs: {e}")
         return set()
 
-# Re-implementing strictly following the user snippet logic but adding filter
 def build_hierarchy_snippet_style(synset, valid_wnids: Optional[Set[str]], depth=0, max_depth=3):
     if depth > max_depth:
         return []
@@ -162,12 +167,6 @@ def build_hierarchy_snippet_style(synset, valid_wnids: Optional[Set[str]], depth
             has_valid_children = True
 
     if not has_valid_children:
-        # If no children survived filter, and we are not a leaf in original graph,
-        # we treat this node as a leaf candidate?
-        # Or we prune it?
-        # If I am 'carnivore', and I filtered all my children, do I keep 'carnivore'?
-        # Probably not if we want a classification tree.
-        # But if valid_wnids is None, we keep everything.
         if valid_wnids is None:
              return name # Treat as leaf if max depth reached or no children
         else:
@@ -179,44 +178,42 @@ def build_hierarchy_snippet_style(synset, valid_wnids: Optional[Set[str]], depth
 
     return child_nodes
 
-def handle_imagenet_tree(args) -> None:
+def generate_imagenet_tree_hierarchy(root_str: str, depth: int, filter_enabled: bool) -> Dict[str, Any]:
     ensure_nltk_data()
     
     valid_wnids = None
-    if args.filter:
+    if filter_enabled:
         logger.info("Ensuring ImageNet list is available...")
         list_path = download_utils.ensure_imagenet_list()
         valid_wnids = load_valid_wnids(list_path)
         logger.info(f"Loaded {len(valid_wnids)} valid WNIDs for filtering.")
     
-    root_str = args.root
     try:
         root_synset = wn.synset(root_str)
     except Exception:
         logger.error(f"Could not find root synset: {root_str}")
-        return
+        return {}
 
-    logger.info(f"Building hierarchy from {root_str} (Top-Down, max_depth={args.depth})...")
+    logger.info(f"Building hierarchy from {root_str} (Top-Down, max_depth={depth})...")
 
     # We wrap the result in a dict with the root name
     root_name = root_synset.lemmas()[0].name().replace('_', ' ')
-    content = build_hierarchy_snippet_style(root_synset, valid_wnids, max_depth=args.depth)
+    content = build_hierarchy_snippet_style(root_synset, valid_wnids, max_depth=depth)
 
     if content:
-        hierarchy = {root_name: content}
+        return {root_name: content}
     else:
-        hierarchy = {}
         logger.warning("Resulting hierarchy is empty (possibly due to aggressive filtering).")
+        return {}
 
-    ensure_output_dir(args.output)
-    with open(args.output, 'w') as f:
-        yaml.dump(hierarchy, f, sort_keys=False, default_flow_style=False, indent=4)
-    logger.info(f"Saved to {args.output}")
+def handle_imagenet_tree(args) -> None:
+    hierarchy = generate_imagenet_tree_hierarchy(args.root, args.depth, args.filter)
+    save_hierarchy(hierarchy, args.output)
 
 
 # --- COCO Logic ---
 
-def handle_coco(args) -> None:
+def generate_coco_hierarchy() -> Dict[str, Any]:
     # Use local category file if available to avoid large downloads
     if os.path.exists("coco_categories.json"):
         logger.info("Using local coco_categories.json...")
@@ -240,11 +237,11 @@ def handle_coco(args) -> None:
             hierarchy[supercat] = []
 
         hierarchy[supercat].append(name)
+    return hierarchy
 
-    ensure_output_dir(args.output)
-    with open(args.output, 'w') as f:
-        yaml.dump(hierarchy, f, sort_keys=False)
-    logger.info(f"Saved to {args.output}")
+def handle_coco(args) -> None:
+    hierarchy = generate_coco_hierarchy()
+    save_hierarchy(hierarchy, args.output)
 
 
 # --- Open Images Logic ---
@@ -278,7 +275,7 @@ def parse_openimages_node(node, id_to_name):
     else:
         return name
 
-def handle_openimages(args) -> None:
+def generate_openimages_hierarchy() -> Dict[str, Any]:
     logger.info("Ensuring Open Images data is available...")
     hierarchy_path, classes_path = download_utils.ensure_openimages_data()
 
@@ -295,12 +292,11 @@ def handle_openimages(args) -> None:
         data = json.load(f)
 
     logger.info("Building hierarchy...")
-    final_yaml = parse_openimages_node(data, id_to_name)
+    return parse_openimages_node(data, id_to_name)
 
-    ensure_output_dir(args.output)
-    with open(args.output, 'w') as f:
-        yaml.dump(final_yaml, f, sort_keys=False)
-    logger.info(f"Saved to {args.output}")
+def handle_openimages(args) -> None:
+    hierarchy = generate_openimages_hierarchy()
+    save_hierarchy(hierarchy, args.output)
 
 
 # --- Main ---
