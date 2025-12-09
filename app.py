@@ -55,6 +55,79 @@ def save_hierarchy(hierarchy: Any, output_path: str) -> None:
         yaml.dump(hierarchy, f, sort_keys=False, default_flow_style=False, indent=4)
     logger.info(f"Saved to {output_path}")
 
+def convert_to_wildcard_format(data: Any) -> Any:
+    """
+    Converts a nested dictionary hierarchy into a format suitable for wildcards.
+
+    Rules:
+    1. If a node has only leaf children, it becomes a List of strings.
+    2. If a node has mixed children (leaves and subtrees), it becomes a Dict.
+       - Subtrees remain as keys.
+       - Leaf children are wrapped as `leaf_name: [leaf_name]`.
+    """
+    # Helper to check if a value represents a leaf in the input format
+    def is_leaf_content(val):
+        if val == {}: return True  # Legacy empty dict leaf
+        if isinstance(val, str): return True  # Tree leaf string
+        if val is None: return True
+        return False
+
+    # Base case: if data itself is a leaf content (shouldn't happen for root usually, but for recursion)
+    if is_leaf_content(data):
+        return data
+
+    if isinstance(data, list):
+        # Already a list (e.g. from COCO), preserve it
+        return data
+
+    if isinstance(data, dict):
+        processed_children = {}
+        child_is_leaf = {}
+
+        for k, v in data.items():
+            converted_v = convert_to_wildcard_format(v)
+
+            # Check what kind of child we have now
+            if is_leaf_content(converted_v):
+                # It's a leaf. Use the key 'k' or the value 'converted_v' if it's a name string.
+                # In legacy, v={}, k=name. In tree, v=name.
+                # Let's standardize on the name.
+                name = k if (converted_v == {} or converted_v is None) else converted_v
+                processed_children[k] = name
+                child_is_leaf[k] = True
+            elif isinstance(converted_v, list):
+                # It's a list of items (a category)
+                processed_children[k] = converted_v
+                child_is_leaf[k] = False
+            elif isinstance(converted_v, dict):
+                # It's a subtree
+                processed_children[k] = converted_v
+                child_is_leaf[k] = False
+            else:
+                # Fallback
+                processed_children[k] = converted_v
+                child_is_leaf[k] = False
+
+        # Decide if this node should be a List or Dict
+        if not processed_children:
+            return {} # Empty dict
+
+        if all(child_is_leaf.values()):
+            # All children are leaves -> Return List of names
+            return list(processed_children.values())
+        else:
+            # Mixed or all subtrees -> Return Dict
+            result = {}
+            for k, val in processed_children.items():
+                if child_is_leaf[k]:
+                    # Wrap leaf in list
+                    result[k] = [val]
+                else:
+                    result[k] = val
+            return result
+
+    return data
+
 # --- Legacy ImageNet Logic (Bottom-Up from WNIDs) ---
 
 def get_synset_from_wnid(wnid: str) -> Optional[Any]:
@@ -121,6 +194,7 @@ def handle_imagenet_wnid(args) -> None:
         wnids = load_wnids(args.inputs)
 
     hierarchy = generate_imagenet_wnid_hierarchy(wnids)
+    hierarchy = convert_to_wildcard_format(hierarchy)
     save_hierarchy(hierarchy, args.output)
 
 def handle_imagenet_21k(args) -> None:
@@ -129,6 +203,7 @@ def handle_imagenet_21k(args) -> None:
     logger.info(f"Loading WNIDs from {ids_path}...")
     wnids = load_wnids([ids_path])
     hierarchy = generate_imagenet_wnid_hierarchy(wnids)
+    hierarchy = convert_to_wildcard_format(hierarchy)
     save_hierarchy(hierarchy, args.output)
 
 # --- ImageNet Tree Logic (Top-Down Recursive) ---
@@ -216,6 +291,7 @@ def generate_imagenet_tree_hierarchy(root_str: str, depth: int, filter_enabled: 
 
 def handle_imagenet_tree(args) -> None:
     hierarchy = generate_imagenet_tree_hierarchy(args.root, args.depth, args.filter)
+    hierarchy = convert_to_wildcard_format(hierarchy)
     save_hierarchy(hierarchy, args.output)
 
 
@@ -249,6 +325,7 @@ def generate_coco_hierarchy() -> Dict[str, Any]:
 
 def handle_coco(args) -> None:
     hierarchy = generate_coco_hierarchy()
+    hierarchy = convert_to_wildcard_format(hierarchy)
     save_hierarchy(hierarchy, args.output)
 
 
@@ -304,6 +381,7 @@ def generate_openimages_hierarchy() -> Dict[str, Any]:
 
 def handle_openimages(args) -> None:
     hierarchy = generate_openimages_hierarchy()
+    hierarchy = convert_to_wildcard_format(hierarchy)
     save_hierarchy(hierarchy, args.output)
 
 
