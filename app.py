@@ -51,7 +51,7 @@ def ensure_nltk_data() -> None:
 
 def save_hierarchy(hierarchy: Any, output_path: str) -> None:
     ensure_output_dir(output_path)
-    with open(output_path, 'w') as f:
+    with open(output_path, 'w', encoding='utf-8') as f:
         yaml.dump(hierarchy, f, sort_keys=False, default_flow_style=False, indent=4)
     logger.info(f"Saved to {output_path}")
 
@@ -168,7 +168,7 @@ def load_wnids(inputs: List[str]) -> List[str]:
     for input_str in inputs:
         if os.path.isfile(input_str):
             try:
-                with open(input_str, 'r') as f:
+                with open(input_str, 'r', encoding='utf-8') as f:
                     lines = [line.strip() for line in f if line.strip()]
                     wnids_to_process.extend(lines)
             except Exception as e:
@@ -211,7 +211,7 @@ def handle_imagenet_21k(args) -> None:
 def load_valid_wnids(json_path: str) -> Set[str]:
     """Loads valid WNIDs from the ImageNet class index JSON."""
     try:
-        with open(json_path, 'r') as f:
+        with open(json_path, 'r', encoding='utf-8') as f:
             data = json.load(f)
         # format: {"0": ["n01440764", "tench"], ...}
         valid_wnids = set()
@@ -301,13 +301,13 @@ def generate_coco_hierarchy() -> Dict[str, Any]:
     # Use local category file if available to avoid large downloads
     if os.path.exists("coco_categories.json"):
         logger.info("Using local coco_categories.json...")
-        with open("coco_categories.json", 'r') as f:
+        with open("coco_categories.json", 'r', encoding='utf-8') as f:
             categories = json.load(f)
     else:
         logger.info("Ensuring COCO data is available...")
         json_path = download_utils.ensure_coco_data()
         logger.info(f"Loading {json_path}...")
-        with open(json_path, 'r') as f:
+        with open(json_path, 'r', encoding='utf-8') as f:
             data = json.load(f)
         categories = data['categories']
 
@@ -366,14 +366,14 @@ def generate_openimages_hierarchy() -> Dict[str, Any]:
 
     logger.info("Loading class descriptions...")
     id_to_name = {}
-    with open(classes_path, 'r') as f:
+    with open(classes_path, 'r', encoding='utf-8') as f:
         reader = csv.reader(f)
         for row in reader:
             if len(row) >= 2:
                 id_to_name[row[0]] = row[1]
 
     logger.info("Loading hierarchy JSON...")
-    with open(hierarchy_path, 'r') as f:
+    with open(hierarchy_path, 'r', encoding='utf-8') as f:
         data = json.load(f)
 
     logger.info("Building hierarchy...")
