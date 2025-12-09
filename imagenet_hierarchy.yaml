@@ -1,0 +1,45 @@
+entity:
+    physical_entity:
+        object:
+            whole:
+                living_thing:
+                    organism:
+                        animal:
+                            chordate:
+                                vertebrate:
+                                    mammal:
+                                        placental:
+                                            carnivore:
+                                                canine:
+                                                    dog:
+                                                        poodle:
+                                                            standard_poodle: {}
+                                                        basenji: {}
+                                                feline:
+                                                    cat:
+                                                        domestic_cat:
+                                                            egyptian_cat: {}
+                artifact:
+                    covering:
+                        clothing:
+                            garment:
+                                shirt:
+                                    jersey: {}
+                    instrumentality:
+                        container:
+                            wheeled_vehicle:
+                                self-propelled_vehicle:
+                                    motor_vehicle:
+                                        truck:
+                                            trailer_truck: {}
+                                        car:
+                                            sports_car: {}
+                natural_object:
+                    plant_part:
+                        plant_organ:
+                            reproductive_structure:
+                                fruit:
+                                    edible_fruit:
+                                        citrus:
+                                            orange: {}
+                                        banana: {}
