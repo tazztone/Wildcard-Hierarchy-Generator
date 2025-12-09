@@ -4,8 +4,15 @@ import urllib.request
 import zipfile
 import shutil
 from typing import Optional, Tuple
+from tqdm import tqdm
 
 logger = logging.getLogger(__name__)
+
+class DownloadProgressBar(tqdm):
+    def update_to(self, b=1, bsize=1, tsize=None):
+        if tsize is not None:
+            self.total = tsize
+        self.update(b * bsize - self.n)
 
 def download_file(url: str, dest_path: str, force: bool = False) -> None:
     """
@@ -19,7 +26,9 @@ def download_file(url: str, dest_path: str, force: bool = False) -> None:
     try:
         # Create directory if it doesn't exist
         os.makedirs(os.path.dirname(dest_path), exist_ok=True)
-        urllib.request.urlretrieve(url, dest_path)
+        with DownloadProgressBar(unit='B', unit_scale=True,
+                                 miniters=1, desc=url.split('/')[-1]) as t:
+            urllib.request.urlretrieve(url, filename=dest_path, reporthook=t.update_to)
         logger.info(f"Download complete: {dest_path}")
     except Exception as e:
         logger.error(f"Failed to download {url}: {e}")
@@ -73,11 +82,13 @@ def ensure_openimages_data(data_dir: str = ".") -> Tuple[str, str]:
     Ensures Open Images hierarchy and class descriptions are present.
     Returns (hierarchy_path, classes_path).
     """
+    # Open Images v4 hierarchy (still used for newer versions)
     hierarchy_url = "https://storage.googleapis.com/openimages/2018_04/bbox_labels_600_hierarchy.json"
-    classes_url = "https://storage.googleapis.com/openimages/v5/class-descriptions-boxable.csv"
+    # Open Images v7 class descriptions
+    classes_url = "https://storage.googleapis.com/openimages/v7/oidv7-class-descriptions.csv"
 
     hierarchy_path = os.path.join(data_dir, "bbox_labels_600_hierarchy.json")
-    classes_path = os.path.join(data_dir, "class-descriptions-boxable.csv")
+    classes_path = os.path.join(data_dir, "oidv7-class-descriptions.csv")
 
     download_file(hierarchy_url, hierarchy_path)
     download_file(classes_url, classes_path)
@@ -96,3 +107,19 @@ def ensure_imagenet_list(data_dir: str = ".") -> str:
     download_file(url, path)
 
     return path
+
+def ensure_imagenet21k_data(data_dir: str = ".") -> Tuple[str, str]:
+    """
+    Ensures ImageNet 21K ID list and lemmas are present.
+    Returns (ids_path, lemmas_path).
+    """
+    ids_url = "https://storage.googleapis.com/bit_models/imagenet21k_wordnet_ids.txt"
+    lemmas_url = "https://storage.googleapis.com/bit_models/imagenet21k_wordnet_lemmas.txt"
+
+    ids_path = os.path.join(data_dir, "imagenet21k_wordnet_ids.txt")
+    lemmas_path = os.path.join(data_dir, "imagenet21k_wordnet_lemmas.txt")
+
+    download_file(ids_url, ids_path)
+    download_file(lemmas_url, lemmas_path)
+
+    return ids_path, lemmas_path

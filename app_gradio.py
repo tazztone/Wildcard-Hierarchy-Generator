@@ -15,6 +15,13 @@ logger = logging.getLogger("gui")
 def format_yaml(data):
     return yaml.dump(data, sort_keys=False, default_flow_style=False, indent=4)
 
+def format_yaml_preview(data, max_lines=1000):
+    yaml_str = yaml.dump(data, sort_keys=False, default_flow_style=False, indent=4)
+    lines = yaml_str.split('\n')
+    if len(lines) > max_lines:
+        return '\n'.join(lines[:max_lines]) + f"\n\n... (Truncated. Total lines: {len(lines)})"
+    return yaml_str
+
 def safe_execution(func, *args, **kwargs):
     try:
         return func(*args, **kwargs)
@@ -25,14 +32,20 @@ def safe_execution(func, *args, **kwargs):
 
 def preview_imagenet_wnid(wnid_text):
     if not wnid_text.strip():
-        return "Please enter at least one WNID."
+        return "Please enter at least one WNID.", "No input."
     wnids = [line.strip() for line in wnid_text.split('\n') if line.strip()]
+    count = len(wnids)
 
-    def _run():
-        h = app.generate_imagenet_wnid_hierarchy(wnids)
-        return format_yaml(h)
-
-    return safe_execution(_run)
+    try:
+        if count > 500:
+             h = app.generate_imagenet_wnid_hierarchy(wnids[:50])
+             msg = f"Ready to generate.\nTotal items: {count}\n(Preview showing first 50)"
+        else:
+             h = app.generate_imagenet_wnid_hierarchy(wnids)
+             msg = f"Ready to generate.\nTotal items: {count}"
+        return format_yaml_preview(h), msg
+    except Exception as e:
+        return f"Error: {e}", "Error"
 
 def save_imagenet_wnid(wnid_text, output_path):
     if not wnid_text.strip():
@@ -42,8 +55,30 @@ def save_imagenet_wnid(wnid_text, output_path):
     def _run():
         h = app.generate_imagenet_wnid_hierarchy(wnids)
         app.save_hierarchy(h, output_path)
-        return f"Successfully saved to {output_path}"
+        return f"Successfully saved to {output_path} ({len(wnids)} items processed)"
 
+    return safe_execution(_run)
+
+def preview_21k():
+    try:
+        ids_path, _ = app.download_utils.ensure_imagenet21k_data()
+        wnids = app.load_wnids([ids_path])
+        count = len(wnids)
+
+        # Sample
+        h = app.generate_imagenet_wnid_hierarchy(wnids[:50])
+        msg = f"Ready to generate.\nTotal items: {count}\n(Preview showing first 50)"
+        return format_yaml_preview(h), msg
+    except Exception as e:
+        return f"Error: {e}", "Error"
+
+def save_21k(output_path):
+    def _run():
+        ids_path, _ = app.download_utils.ensure_imagenet21k_data()
+        wnids = app.load_wnids([ids_path])
+        h = app.generate_imagenet_wnid_hierarchy(wnids)
+        app.save_hierarchy(h, output_path)
+        return f"Successfully saved to {output_path} ({len(wnids)} items processed)"
     return safe_execution(_run)
 
 def load_file_content(file_path):
@@ -56,10 +91,15 @@ def load_file_content(file_path):
         return f"Error reading file: {e}"
 
 def preview_tree(root, depth, filter_en):
-    def _run():
+    try:
         h = app.generate_imagenet_tree_hierarchy(root, int(depth), filter_en)
-        return format_yaml(h)
-    return safe_execution(_run)
+        # Count nodes roughly
+        yaml_str = format_yaml_preview(h)
+        lines = yaml_str.count('\n') + 1
+        msg = f"Ready to generate.\nGenerated ~{lines} lines of YAML."
+        return yaml_str, msg
+    except Exception as e:
+        return f"Error: {e}", "Error"
 
 def save_tree(root, depth, filter_en, path):
     def _run():
@@ -69,10 +109,13 @@ def save_tree(root, depth, filter_en, path):
     return safe_execution(_run)
 
 def preview_coco():
-    def _run():
+    try:
         h = app.generate_coco_hierarchy()
-        return format_yaml(h)
-    return safe_execution(_run)
+        count = sum(len(v) for v in h.values())
+        msg = f"Ready to generate.\nFound {len(h)} supercategories and ~{count} categories."
+        return format_yaml_preview(h), msg
+    except Exception as e:
+        return f"Error: {e}", "Error"
 
 def save_coco(path):
     def _run():
@@ -82,10 +125,14 @@ def save_coco(path):
     return safe_execution(_run)
 
 def preview_oi():
-    def _run():
+    try:
         h = app.generate_openimages_hierarchy()
-        return format_yaml(h)
-    return safe_execution(_run)
+        # Rough count of lines in YAML
+        yaml_str = format_yaml_preview(h)
+        msg = f"Ready to generate.\nOpen Images hierarchy loaded."
+        return yaml_str, msg
+    except Exception as e:
+        return f"Error: {e}", "Error"
 
 def save_oi(path):
     def _run():
@@ -128,7 +175,7 @@ with gr.Blocks(title="Hierarchy Generator") as demo:
             output_path_wnid = gr.Textbox(value="imagenet_hierarchy.yaml", label="Output Filename")
 
             with gr.Row():
-                btn_preview_wnid = gr.Button("Preview YAML", variant="secondary")
+                btn_preview_wnid = gr.Button("Preview YAML & Stats", variant="secondary")
                 btn_save_wnid = gr.Button("Generate & Save File", variant="primary")
 
             out_preview_wnid = gr.Code(language="yaml", label="Preview")
@@ -136,8 +183,27 @@ with gr.Blocks(title="Hierarchy Generator") as demo:
 
             # Event handlers
             file_upload.change(load_file_content, inputs=[file_upload], outputs=[wnid_input])
-            btn_preview_wnid.click(preview_imagenet_wnid, inputs=[wnid_input], outputs=[out_preview_wnid])
+            btn_preview_wnid.click(preview_imagenet_wnid, inputs=[wnid_input], outputs=[out_preview_wnid, out_status_wnid])
             btn_save_wnid.click(save_imagenet_wnid, inputs=[wnid_input, output_path_wnid], outputs=[out_status_wnid])
+
+        # --- ImageNet-21K Tab ---
+        with gr.TabItem("ImageNet-21K"):
+            gr.Markdown("### ImageNet-21K Hierarchy")
+            gr.Markdown("**Dataset Info**: ImageNet-21K is the full ImageNet dataset with around 21,000 categories.")
+            gr.Markdown("Generate the full hierarchy. This will download the ID list (~21k items) and process them. "
+                        "Depending on your connection and CPU, this might take a moment.")
+
+            output_path_21k = gr.Textbox(value="imagenet21k_hierarchy.yaml", label="Output Filename")
+
+            with gr.Row():
+                btn_preview_21k = gr.Button("Preview YAML & Stats", variant="secondary")
+                btn_save_21k = gr.Button("Generate & Save File", variant="primary")
+
+            out_preview_21k = gr.Code(language="yaml", label="Preview")
+            out_status_21k = gr.Textbox(label="Status", interactive=False)
+
+            btn_preview_21k.click(preview_21k, outputs=[out_preview_21k, out_status_21k])
+            btn_save_21k.click(save_21k, inputs=[output_path_21k], outputs=[out_status_21k])
 
         # --- ImageNet Tree Tab ---
         with gr.TabItem("ImageNet Tree"):
@@ -154,13 +220,13 @@ with gr.Blocks(title="Hierarchy Generator") as demo:
             output_path_tree = gr.Textbox(value="wildcards_imagenet.yaml", label="Output Filename")
 
             with gr.Row():
-                btn_preview_tree = gr.Button("Preview YAML", variant="secondary")
+                btn_preview_tree = gr.Button("Preview YAML & Stats", variant="secondary")
                 btn_save_tree = gr.Button("Generate & Save File", variant="primary")
 
             out_preview_tree = gr.Code(language="yaml", label="Preview")
             out_status_tree = gr.Textbox(label="Status", interactive=False)
 
-            btn_preview_tree.click(preview_tree, inputs=[root_input, depth_input, filter_input], outputs=[out_preview_tree])
+            btn_preview_tree.click(preview_tree, inputs=[root_input, depth_input, filter_input], outputs=[out_preview_tree, out_status_tree])
             btn_save_tree.click(save_tree, inputs=[root_input, depth_input, filter_input, output_path_tree], outputs=[out_status_tree])
 
         # --- COCO Tab ---
@@ -175,20 +241,20 @@ with gr.Blocks(title="Hierarchy Generator") as demo:
             output_path_coco = gr.Textbox(value="wildcards_coco.yaml", label="Output Filename")
 
             with gr.Row():
-                btn_preview_coco = gr.Button("Preview YAML", variant="secondary")
+                btn_preview_coco = gr.Button("Preview YAML & Stats", variant="secondary")
                 btn_save_coco = gr.Button("Generate & Save File", variant="primary")
 
             out_preview_coco = gr.Code(language="yaml", label="Preview")
             out_status_coco = gr.Textbox(label="Status", interactive=False)
 
-            btn_preview_coco.click(preview_coco, outputs=[out_preview_coco])
+            btn_preview_coco.click(preview_coco, outputs=[out_preview_coco, out_status_coco])
             btn_save_coco.click(save_coco, inputs=[output_path_coco], outputs=[out_status_coco])
 
         # --- Open Images Tab ---
         with gr.TabItem("Open Images"):
             gr.Markdown("### Open Images Dataset Hierarchy")
             gr.Markdown("**Dataset Info**: [Open Images](https://storage.googleapis.com/openimages/web/index.html) is a dataset of ~9 million images annotated with image-level labels, bounding boxes, and more. "
-                        "It covers a vast range of categories.")
+                        "This tool supports Open Images V7.")
             gr.Markdown("Generate hierarchy from Open Images class descriptions and hierarchy JSON.")
 
             gr.Markdown("**Note:** This will download the class descriptions and hierarchy JSON if not present.")
@@ -196,13 +262,13 @@ with gr.Blocks(title="Hierarchy Generator") as demo:
             output_path_oi = gr.Textbox(value="wildcards_openimages.yaml", label="Output Filename")
 
             with gr.Row():
-                btn_preview_oi = gr.Button("Preview YAML", variant="secondary")
+                btn_preview_oi = gr.Button("Preview YAML & Stats", variant="secondary")
                 btn_save_oi = gr.Button("Generate & Save File", variant="primary")
 
             out_preview_oi = gr.Code(language="yaml", label="Preview")
             out_status_oi = gr.Textbox(label="Status", interactive=False)
 
-            btn_preview_oi.click(preview_oi, outputs=[out_preview_oi])
+            btn_preview_oi.click(preview_oi, outputs=[out_preview_oi, out_status_oi])
             btn_save_oi.click(save_oi, inputs=[output_path_oi], outputs=[out_status_oi])
 
 if __name__ == "__main__":

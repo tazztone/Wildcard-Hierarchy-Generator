@@ -2,3 +2,4 @@ nltk
 PyYAML
 pytest
 gradio
+tqdm

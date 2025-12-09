@@ -16,6 +16,7 @@ from typing import List, Dict, Optional, Any, Set
 import yaml
 import nltk
 from nltk.corpus import wordnet as wn
+from tqdm import tqdm
 
 import download_utils
 
@@ -67,12 +68,12 @@ def get_synset_from_wnid(wnid: str) -> Optional[Any]:
         offset = int(offset_str)
         return wn.synset_from_pos_and_offset(pos, offset)
     except Exception as e:
-        logger.error(f"Error finding synset for {wnid}: {e}")
+        # logger.error(f"Error finding synset for {wnid}: {e}") # Reduce spam for large lists
         return None
 
 def build_hierarchy_tree_legacy(wnids: List[str]) -> Dict[str, Any]:
     tree: Dict[str, Any] = {}
-    for wnid in wnids:
+    for wnid in tqdm(wnids, desc="Building hierarchy", unit="id"):
         synset = get_synset_from_wnid(wnid)
         if not synset:
             continue
@@ -122,6 +123,13 @@ def handle_imagenet_wnid(args) -> None:
     hierarchy = generate_imagenet_wnid_hierarchy(wnids)
     save_hierarchy(hierarchy, args.output)
 
+def handle_imagenet_21k(args) -> None:
+    logger.info("Downloading and processing ImageNet-21K data...")
+    ids_path, _ = download_utils.ensure_imagenet21k_data()
+    logger.info(f"Loading WNIDs from {ids_path}...")
+    wnids = load_wnids([ids_path])
+    hierarchy = generate_imagenet_wnid_hierarchy(wnids)
+    save_hierarchy(hierarchy, args.output)
 
 # --- ImageNet Tree Logic (Top-Down Recursive) ---
 
@@ -229,7 +237,7 @@ def generate_coco_hierarchy() -> Dict[str, Any]:
 
     logger.info("Processing COCO categories...")
     hierarchy = {}
-    for cat in categories:
+    for cat in tqdm(categories, desc="Processing COCO"):
         supercat = cat['supercategory']
         name = cat['name']
 
@@ -311,6 +319,11 @@ def main() -> None:
     p_wnid.add_argument('-o', '--output', default='imagenet_hierarchy.yaml')
     p_wnid.add_argument('-v', '--verbose', action='store_true')
     p_wnid.set_defaults(func=handle_imagenet_wnid)
+
+    # ImageNet-21K
+    p_21k = subparsers.add_parser('imagenet-21k', help='Build hierarchy for ImageNet-21K')
+    p_21k.add_argument('-o', '--output', default='imagenet21k_hierarchy.yaml')
+    p_21k.set_defaults(func=handle_imagenet_21k)
 
     # New ImageNet (Root -> Recursive Children)
     p_tree = subparsers.add_parser('imagenet-tree', help='Build hierarchy recursively from a root node (Top-Down)')
