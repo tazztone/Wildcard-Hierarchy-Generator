@@ -104,6 +104,8 @@ with gr.Blocks(title="Hierarchy Generator") as demo:
         # --- ImageNet WNID Tab ---
         with gr.TabItem("ImageNet WNID"):
             gr.Markdown("### Bottom-Up Hierarchy from WNIDs")
+            gr.Markdown("**Dataset Info**: [ImageNet](http://www.image-net.org/) is a large-scale hierarchical image database organized according to the WordNet hierarchy. "
+                        "It is a cornerstone dataset for computer vision research.")
             gr.Markdown("Provide a list of ImageNet WordNet IDs (WNIDs) to generate a hierarchy containing those classes and their ancestors. "
                         "This is useful if you have a specific subset of ImageNet classes.")
 
@@ -140,6 +142,7 @@ with gr.Blocks(title="Hierarchy Generator") as demo:
         # --- ImageNet Tree Tab ---
         with gr.TabItem("ImageNet Tree"):
             gr.Markdown("### Top-Down Recursive Hierarchy")
+            gr.Markdown("**Dataset Info**: [ImageNet](http://www.image-net.org/) is a large-scale hierarchical image database organized according to the WordNet hierarchy.")
             gr.Markdown("Generate a hierarchy by starting from a root Synset and recursively finding children up to a certain depth. "
                         "This is useful for exploring subtrees of WordNet.")
 
@@ -163,6 +166,8 @@ with gr.Blocks(title="Hierarchy Generator") as demo:
         # --- COCO Tab ---
         with gr.TabItem("COCO"):
             gr.Markdown("### COCO Dataset Hierarchy")
+            gr.Markdown("**Dataset Info**: [COCO (Common Objects in Context)](https://cocodataset.org/) is a rich dataset for object detection, segmentation, and captioning. "
+                        "It contains 80 object categories commonly found in everyday scenes.")
             gr.Markdown("Generate hierarchy from COCO categories. It groups categories under their supercategories.")
 
             gr.Markdown("**Note:** This may download the COCO annotations file if not present locally.")
@@ -182,6 +187,8 @@ with gr.Blocks(title="Hierarchy Generator") as demo:
         # --- Open Images Tab ---
         with gr.TabItem("Open Images"):
             gr.Markdown("### Open Images Dataset Hierarchy")
+            gr.Markdown("**Dataset Info**: [Open Images](https://storage.googleapis.com/openimages/web/index.html) is a dataset of ~9 million images annotated with image-level labels, bounding boxes, and more. "
+                        "It covers a vast range of categories.")
             gr.Markdown("Generate hierarchy from Open Images class descriptions and hierarchy JSON.")
 
             gr.Markdown("**Note:** This will download the class descriptions and hierarchy JSON if not present.")

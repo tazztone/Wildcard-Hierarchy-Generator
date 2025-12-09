@@ -23,8 +23,16 @@ This project is a utility to generate a WordNet hierarchy from ImageNet WNIDs. I
 ## File Structure
 
 *   `app.py`: The entry point and main logic. Keep this file focused. If logic grows significantly, refactor into a `src/` package.
+*   `app_gradio.py`: The Gradio-based web interface. Ensure any changes here are compatible with the logic in `app.py`.
 *   `tests/`: Contains all test files. Naming convention: `test_<module_name>.py`.
 *   `requirements.txt`: Pin dependencies here.
+
+## Datasets
+
+The project relies on external dataset structures:
+*   **ImageNet**: Accessed via NLTK WordNet.
+*   **COCO**: Uses `coco_categories.json` or downloads annotations.
+*   **Open Images**: Downloads class descriptions and hierarchy JSON if not present.
 
 ## Common Tasks
 
