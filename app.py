@@ -20,6 +20,8 @@ from tqdm import tqdm
 
 import download_utils
 
+DOWNLOADS_DIR = "downloads"
+
 # Configure logging
 logging.basicConfig(
     level=logging.INFO,
@@ -114,8 +116,11 @@ def extract_all_leaves(data: Any) -> List[str]:
         for item in data:
             leaves.extend(extract_all_leaves(item))
     elif isinstance(data, dict):
-        for v in data.values():
-            leaves.extend(extract_all_leaves(v))
+        for k, v in data.items():
+            if v == {} or v is None:
+                leaves.append(k)
+            else:
+                leaves.extend(extract_all_leaves(v))
     elif isinstance(data, str):
         leaves.append(data)
     elif data is None:
@@ -158,7 +163,7 @@ def load_wnids_list(inputs: List[str]) -> List[str]:
 
 def load_imagenet_1k_set() -> Set[str]:
     logger.info("Ensuring ImageNet 1k list is available...")
-    list_path = download_utils.ensure_imagenet_list()
+    list_path = download_utils.ensure_imagenet_list(DOWNLOADS_DIR)
     try:
         with open(list_path, 'r', encoding='utf-8') as f:
             data = json.load(f)
@@ -173,7 +178,7 @@ def load_imagenet_1k_set() -> Set[str]:
 
 def load_imagenet_21k_set() -> Set[str]:
     logger.info("Ensuring ImageNet 21k list is available...")
-    ids_path, _ = download_utils.ensure_imagenet21k_data()
+    ids_path, _ = download_utils.ensure_imagenet21k_data(DOWNLOADS_DIR)
     wnids = set()
     try:
         with open(ids_path, 'r', encoding='utf-8') as f:
@@ -311,11 +316,12 @@ def generate_imagenet_tree_hierarchy(root_str: str, max_depth: int, filter_ids: 
 # --- COCO Logic ---
 
 def generate_coco_hierarchy(max_depth: int = 10) -> Dict[str, Any]:
-    if os.path.exists("coco_categories.json"):
-        with open("coco_categories.json", 'r', encoding='utf-8') as f:
+    local_coco_path = os.path.join(DOWNLOADS_DIR, "coco_categories.json")
+    if os.path.exists(local_coco_path):
+        with open(local_coco_path, 'r', encoding='utf-8') as f:
             categories = json.load(f)
     else:
-        json_path = download_utils.ensure_coco_data()
+        json_path = download_utils.ensure_coco_data(DOWNLOADS_DIR)
         with open(json_path, 'r', encoding='utf-8') as f:
             data = json.load(f)
         categories = data['categories']
@@ -354,7 +360,7 @@ def parse_openimages_node(node, id_to_name):
         return name
 
 def generate_openimages_hierarchy(max_depth: int = 10) -> Dict[str, Any]:
-    hierarchy_path, classes_path = download_utils.ensure_openimages_data()
+    hierarchy_path, classes_path = download_utils.ensure_openimages_data(DOWNLOADS_DIR)
 
     id_to_name = {}
     with open(classes_path, 'r', encoding='utf-8') as f:
