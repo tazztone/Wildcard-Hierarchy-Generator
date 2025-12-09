@@ -51,8 +51,6 @@ def generate_hierarchy(mode, wnid_text, root_synset, filter_mode, max_depth):
         if not wnid_text.strip():
             raise ValueError("Please enter at least one WNID.")
         wnids = [line.strip() for line in wnid_text.split('\n') if line.strip()]
-        # Determine if preview or full (we just generate full for preview usually, but limit for huge lists?)
-        # For simplicity, generate full then truncate in preview formatter.
         h = app.generate_imagenet_wnid_hierarchy(wnids, max_depth)
 
     elif mode == "ImageNet (Tree)":
@@ -72,6 +70,14 @@ def generate_hierarchy(mode, wnid_text, root_synset, filter_mode, max_depth):
 
 def on_preview(mode, wnid_text, root_synset, filter_mode, max_depth):
     try:
+        # Fix 1: Handle None inputs
+        wnid_text = wnid_text or ""
+        root_synset = root_synset or "entity.n.01"
+
+        # Fix 3: Validation
+        if mode == "ImageNet (Custom List)" and not wnid_text.strip():
+            return "# Error: Please enter WNIDs", "❌ Error: No WNIDs provided"
+
         h = generate_hierarchy(mode, wnid_text, root_synset, filter_mode, max_depth)
 
         # Stats
@@ -85,10 +91,18 @@ def on_preview(mode, wnid_text, root_synset, filter_mode, max_depth):
 
         return format_yaml_preview(h), msg
     except Exception as e:
-        return f"Error: {e}", "Error"
+        return f"Error: {e}", f"Error: {e}"
 
 def on_save(mode, wnid_text, root_synset, filter_mode, max_depth, output_path):
     try:
+        # Handle None inputs
+        wnid_text = wnid_text or ""
+        root_synset = root_synset or "entity.n.01"
+
+        # Validation
+        if mode == "ImageNet (Custom List)" and not wnid_text.strip():
+            return "❌ Error: No WNIDs provided"
+
         h = generate_hierarchy(mode, wnid_text, root_synset, filter_mode, max_depth)
         app.save_hierarchy(h, output_path)
         return f"Successfully saved to {output_path}"
@@ -153,9 +167,21 @@ with gr.Blocks(title="Hierarchy Generator") as demo:
         btn_preview = gr.Button("Preview YAML", variant="secondary")
         btn_save = gr.Button("Generate & Save", variant="primary")
 
-    # Output
-    out_preview = gr.Code(language="yaml", label="Preview")
-    out_status = gr.Textbox(label="Status", interactive=False)
+    # Output (Reorganized)
+    # Fix 2 & 4: Status above preview, improved feedback
+    out_status = gr.Textbox(label="Status", interactive=False, show_label=True)
+
+    with gr.Accordion("Preview Output", open=True):
+        out_preview = gr.Code(language="yaml", label="Generated YAML")
+
+    # Fix 4: Add Examples
+    gr.Examples(
+        examples=[
+            ["ImageNet (Tree)", "", "entity.n.01", "ImageNet 1k", 2],
+            ["COCO", "", "", "All WordNet", 1],
+        ],
+        inputs=[mode, wnid_input, root_input, filter_mode, max_depth],
+    )
 
     # --- Interaction Logic ---
 
