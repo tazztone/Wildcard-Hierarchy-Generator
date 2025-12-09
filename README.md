@@ -1,13 +1,13 @@
-# ImageNet Hierarchy Generator
+# Wildcard Hierarchy Generator
 
-A production-ready Python tool to generate a WordNet hierarchy YAML file from a list of ImageNet WordNet IDs (WNIDs).
+A Python tool to generate WordNet-style hierarchy YAML files from various datasets (ImageNet, COCO, Open Images).
 
 ## Features
 
-- **Input Flexibility**: Accepts WNIDs directly via command line or through text files.
-- **Robustness**: Includes logging, error handling, and type hinting.
-- **Data Management**: Automatically downloads necessary NLTK WordNet data.
-- **Customizable Output**: Specify the output file name and location.
+- **ImageNet**: Generate hierarchies from ImageNet WNIDs (legacy) or the full ImageNet tree filtered to the standard 1000 classes.
+- **COCO**: Generate hierarchy from COCO categories (supports local optimization to avoid large downloads).
+- **Open Images**: Generate hierarchy from Open Images V5 data.
+- **Automation**: Includes scripts to generate all hierarchies in one go.
 
 ## Installation
 
@@ -18,53 +18,65 @@ A production-ready Python tool to generate a WordNet hierarchy YAML file from a 
     ```
 
 2.  **Install dependencies**:
-    Ensure you have Python 3 installed. It is recommended to use a virtual environment.
     ```bash
     pip install -r requirements.txt
     ```
 
 ## Usage
 
-### Basic Usage
+### Quick Start (Generate All)
 
-Run the script with default sample data (if no input is provided):
+To generate all hierarchies (ImageNet, COCO, Open Images) into the `output/` directory:
 
+**Linux/macOS:**
 ```bash
-python app.py
+bash scripts/generate_all.sh
 ```
 
-### Direct Input
-
-Provide WNIDs directly as arguments:
-
-```bash
-python app.py n02084071 n02113799
+**Windows:**
+```batch
+scripts\generate_all.bat
 ```
 
-### File Input
+The generated files will be:
+- `output/imagenet.yaml`
+- `output/coco.yaml`
+- `output/openimages.yaml`
 
-Provide a text file containing WNIDs (one per line):
+### Manual Usage
+
+You can also run the tool manually via `app.py`.
+
+#### ImageNet (Top-Down Tree)
+Generates a hierarchy starting from a root node, optionally filtered to the ImageNet 1k classes.
 
 ```bash
-python app.py inputs.txt
+python app.py imagenet-tree --root entity.n.01 --depth 25 --filter --output output/imagenet.yaml
+```
+*   `--root`: The root synset (default: `animal.n.01`).
+*   `--depth`: Max recursion depth.
+*   `--filter`: Filter to include only paths leading to the standard ImageNet 1k classes.
+
+#### COCO
+Generates the COCO 80-category hierarchy.
+
+```bash
+python app.py coco --output output/coco.yaml
+```
+*   **Optimization**: If `coco_categories.json` is present in the root directory, the tool uses it instead of downloading the large (200MB+) annotations zip file.
+
+#### Open Images
+Generates the Open Images V5 hierarchy.
+
+```bash
+python app.py openimages --output output/openimages.yaml
 ```
 
-You can mix file paths and direct IDs:
+#### Legacy ImageNet (Bottom-Up)
+Generates a hierarchy from a list of WNIDs provided in a file or arguments.
 
 ```bash
-python app.py inputs.txt n07747607
-```
-
-### Options
-
-*   `-o, --output <file>`: Specify the output YAML file path (default: `imagenet_hierarchy.yaml`).
-*   `-v, --verbose`: Enable verbose debug logging.
-*   `-h, --help`: Show help message.
-
-**Example with options:**
-
-```bash
-python app.py inputs.txt -o my_hierarchy.yaml -v
+python app.py imagenet-wnid inputs.txt -o my_hierarchy.yaml
 ```
 
 ## Output Format
@@ -86,7 +98,7 @@ entity:
 
 ### Running Tests
 
-To run the test suite, first ensure `pytest` is installed (it is included in `requirements.txt`), then run:
+To run the test suite:
 
 ```bash
 pytest tests/
@@ -95,6 +107,7 @@ pytest tests/
 ### Project Structure
 
 *   `app.py`: Main application logic.
+*   `download_utils.py`: Utilities for downloading external data.
+*   `scripts/`: Helper scripts for generation.
+*   `coco_categories.json`: Lightweight COCO category list (to avoid large downloads).
 *   `tests/`: Unit tests.
-*   `requirements.txt`: Python dependencies.
-*   `AGENTS.md`: Guidelines for AI agents and contributors.

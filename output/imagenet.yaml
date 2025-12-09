@@ -1,0 +1,2422 @@
+entity:
+    abstraction:
+        attribute:
+            shape:
+                round shape:
+                    sphere:
+                        ball:
+                            globule:
+                                bubble: bubble
+        relation:
+            part:
+                substance:
+                    material:
+                        paper:
+                            tissue:
+                                toilet tissue: toilet tissue
+                    fluid:
+                        liquid:
+                            beverage:
+                                alcohol:
+                                    mixed drink:
+                                        punch:
+                                            cup: cup
+                                            eggnog: eggnog
+                                    wine:
+                                        red wine: red wine
+                                coffee:
+                                    espresso: espresso
+        communication:
+            signal:
+                visual signal:
+                    light:
+                        traffic light: traffic light
+            sign:
+                street sign: street sign
+    physical entity:
+        object:
+            location:
+                point:
+                    geographic point:
+                        workplace:
+                            bakery: bakery
+            geological formation:
+                cliff: cliff
+                natural depression:
+                    valley: valley
+                spring:
+                    geyser: geyser
+                natural elevation:
+                    mountain:
+                        volcano: volcano
+                        alp: alp
+                    ridge:
+                        bar:
+                            sandbar: sandbar
+                        reef:
+                            coral reef: coral reef
+                    promontory: promontory
+                shore:
+                    lakeside: lakeside
+                    seashore: seashore
+            whole:
+                natural object:
+                    plant part:
+                        plant organ:
+                            reproductive structure:
+                                fruit:
+                                    hip: hip
+                                    seed:
+                                        buckeye: buckeye
+                                        oilseed:
+                                            rapeseed: rapeseed
+                                        grain:
+                                            kernel:
+                                                corn: corn
+                                    acorn: acorn
+                                    ear: ear
+                                    edible fruit:
+                                        citrus:
+                                            orange: orange
+                                            lemon: lemon
+                                        berry:
+                                            strawberry: strawberry
+                                        pineapple: pineapple
+                                        pomegranate: pomegranate
+                                        apple:
+                                            eating apple:
+                                                Granny Smith: Granny Smith
+                                        fig: fig
+                                        banana: banana
+                                        custard apple: custard apple
+                                        jackfruit: jackfruit
+                                    pome:
+                                        apple:
+                                            eating apple:
+                                                Granny Smith: Granny Smith
+                    mechanism:
+                        barrier:
+                            bar:
+                                sandbar: sandbar
+                living thing:
+                    organism:
+                        plant:
+                            vascular plant:
+                                spermatophyte:
+                                    angiosperm:
+                                        flower:
+                                            daisy: daisy
+                                            orchid:
+                                                lady's slipper:
+                                                    yellow lady's slipper: yellow
+                                                        lady's slipper
+                        animal:
+                            racer:
+                                greyhound:
+                                    Italian greyhound: Italian greyhound
+                                    whippet: whippet
+                            chordate:
+                                vertebrate:
+                                    reptile:
+                                        anapsid:
+                                            chelonian:
+                                                turtle:
+                                                    box turtle: box turtle
+                                                    mud turtle: mud turtle
+                                                    sea turtle:
+                                                        leatherback turtle: leatherback
+                                                            turtle
+                                                        loggerhead: loggerhead
+                                                    terrapin: terrapin
+                                        diapsid:
+                                            snake:
+                                                viper:
+                                                    pit viper:
+                                                        rattlesnake:
+                                                            diamondback: diamondback
+                                                            sidewinder: sidewinder
+                                                    horned viper: horned viper
+                                                colubrid snake:
+                                                    king snake: king snake
+                                                    ringneck snake: ringneck snake
+                                                    thunder snake: thunder snake
+                                                    vine snake: vine snake
+                                                    garter snake: garter snake
+                                                    hognose snake: hognose snake
+                                                    night snake: night snake
+                                                    green snake: green snake
+                                                    water snake: water snake
+                                                elapid:
+                                                    cobra:
+                                                        Indian cobra: Indian cobra
+                                                    mamba:
+                                                        black mamba:
+                                                            green mamba: green mamba
+                                                sea snake: sea snake
+                                                constrictor:
+                                                    boa:
+                                                        boa constrictor: boa constrictor
+                                                        python:
+                                                            rock python: rock python
+                                            saurian:
+                                                lizard:
+                                                    teiid lizard:
+                                                        whiptail: whiptail
+                                                    lacertid lizard:
+                                                        green lizard: green lizard
+                                                    monitor:
+                                                        Komodo dragon: Komodo dragon
+                                                    chameleon:
+                                                        African chameleon: African
+                                                            chameleon
+                                                    venomous lizard:
+                                                        Gila monster: Gila monster
+                                                    anguid lizard:
+                                                        alligator lizard: alligator
+                                                            lizard
+                                                    agamid:
+                                                        frilled lizard: frilled lizard
+                                                        agama: agama
+                                                    iguanid:
+                                                        American chameleon: American
+                                                            chameleon
+                                                        common iguana: common iguana
+                                                    gecko:
+                                                        banded gecko: banded gecko
+                                            crocodilian reptile:
+                                                crocodile:
+                                                    African crocodile: African crocodile
+                                                alligator:
+                                                    American alligator: American alligator
+                                            archosaur:
+                                                dinosaur:
+                                                    ornithischian:
+                                                        ceratopsian:
+                                                            triceratops: triceratops
+                                    mammal:
+                                        metatherian:
+                                            marsupial:
+                                                kangaroo:
+                                                    wallaby: wallaby
+                                                phalanger:
+                                                    koala: koala
+                                                wombat: wombat
+                                        tusker: tusker
+                                        prototherian:
+                                            monotreme:
+                                                platypus: platypus
+                                                echidna: echidna
+                                        placental:
+                                            proboscidean:
+                                                elephant:
+                                                    African elephant: African elephant
+                                                    Indian elephant: Indian elephant
+                                            carnivore:
+                                                feline:
+                                                    cat:
+                                                        domestic cat:
+                                                            Siamese cat: Siamese cat
+                                                            Persian cat: Persian cat
+                                                            tiger cat: tiger cat
+                                                            Egyptian cat: Egyptian
+                                                                cat
+                                                            tabby: tabby
+                                                        wildcat:
+                                                            lynx: lynx
+                                                            cougar: cougar
+                                                    big cat:
+                                                        lion: lion
+                                                        tiger: tiger
+                                                        cheetah: cheetah
+                                                        leopard: leopard
+                                                        jaguar: jaguar
+                                                        snow leopard: snow leopard
+                                                canine:
+                                                    wild dog:
+                                                        dingo: dingo
+                                                        dhole: dhole
+                                                        African hunting dog: African
+                                                            hunting dog
+                                                    hyena: hyena
+                                                    wolf:
+                                                        white wolf: white wolf
+                                                        red wolf: red wolf
+                                                        timber wolf: timber wolf
+                                                        coyote: coyote
+                                                    fox:
+                                                        grey fox: grey fox
+                                                        red fox: red fox
+                                                        Arctic fox: Arctic fox
+                                                        kit fox: kit fox
+                                                    dog:
+                                                        Newfoundland: Newfoundland
+                                                        corgi:
+                                                            Pembroke: Pembroke
+                                                            Cardigan: Cardigan
+                                                        poodle:
+                                                            toy poodle: toy poodle
+                                                            standard poodle: standard
+                                                                poodle
+                                                            miniature poodle: miniature
+                                                                poodle
+                                                        dalmatian: dalmatian
+                                                        pug: pug
+                                                        griffon:
+                                                            Brabancon griffon: Brabancon
+                                                                griffon
+                                                        spitz:
+                                                            keeshond: keeshond
+                                                            Pomeranian: Pomeranian
+                                                            Samoyed: Samoyed
+                                                            chow: chow
+                                                        toy dog:
+                                                            toy spaniel:
+                                                                papillon: papillon
+                                                                English toy spaniel:
+                                                                    Blenheim spaniel: Blenheim
+                                                                        spaniel
+                                                            Shih-Tzu: Shih-Tzu
+                                                            Pekinese: Pekinese
+                                                            toy terrier: toy terrier
+                                                            Japanese spaniel: Japanese
+                                                                spaniel
+                                                            Maltese dog: Maltese dog
+                                                            Chihuahua: Chihuahua
+                                                        basenji: basenji
+                                                        Great Pyrenees: Great Pyrenees
+                                                        working dog:
+                                                            shepherd dog:
+                                                                Border collie: Border
+                                                                    collie
+                                                                Old English sheepdog: Old
+                                                                    English sheepdog
+                                                                collie: collie
+                                                                Belgian sheepdog:
+                                                                    groenendael: groenendael
+                                                                    malinois: malinois
+                                                                kelpie: kelpie
+                                                                Rottweiler: Rottweiler
+                                                                briard: briard
+                                                                komondor: komondor
+                                                                German shepherd: German
+                                                                    shepherd
+                                                                Shetland sheepdog: Shetland
+                                                                    sheepdog
+                                                                Bouvier des Flandres: Bouvier
+                                                                    des Flandres
+                                                            bull mastiff: bull mastiff
+                                                            Saint Bernard: Saint Bernard
+                                                            sled dog:
+                                                                malamute: malamute
+                                                                Siberian husky: Siberian
+                                                                    husky
+                                                            watchdog:
+                                                                pinscher:
+                                                                    miniature pinscher: miniature
+                                                                        pinscher
+                                                                    affenpinscher: affenpinscher
+                                                                    Doberman: Doberman
+                                                                schipperke: schipperke
+                                                                kuvasz: kuvasz
+                                                            mastiff:
+                                                                Tibetan mastiff: Tibetan
+                                                                    mastiff
+                                                            bulldog:
+                                                                French bulldog: French
+                                                                    bulldog
+                                                            Eskimo dog: Eskimo dog
+                                                            Great Dane: Great Dane
+                                                            boxer: boxer
+                                                            Sennenhunde:
+                                                                Bernese mountain dog: Bernese
+                                                                    mountain dog
+                                                                Appenzeller: Appenzeller
+                                                                EntleBucher: EntleBucher
+                                                                Greater Swiss Mountain dog: Greater
+                                                                    Swiss Mountain
+                                                                    dog
+                                                        hunting dog:
+                                                            Rhodesian ridgeback: Rhodesian
+                                                                ridgeback
+                                                            hound:
+                                                                bluetick: bluetick
+                                                                coonhound:
+                                                                    black-and-tan coonhound: black-and-tan
+                                                                        coonhound
+                                                                basset: basset
+                                                                Afghan hound: Afghan
+                                                                    hound
+                                                                redbone: redbone
+                                                                Scottish deerhound: Scottish
+                                                                    deerhound
+                                                                bloodhound: bloodhound
+                                                                Saluki: Saluki
+                                                                foxhound:
+                                                                    English foxhound: English
+                                                                        foxhound
+                                                                    Walker hound: Walker
+                                                                        hound
+                                                                greyhound:
+                                                                    Italian greyhound: Italian
+                                                                        greyhound
+                                                                    whippet: whippet
+                                                                otterhound: otterhound
+                                                                Norwegian elkhound: Norwegian
+                                                                    elkhound
+                                                                beagle: beagle
+                                                                Ibizan hound: Ibizan
+                                                                    hound
+                                                                wolfhound:
+                                                                    borzoi: borzoi
+                                                                    Irish wolfhound: Irish
+                                                                        wolfhound
+                                                                Weimaraner: Weimaraner
+                                                            sporting dog:
+                                                                pointer:
+                                                                    German short-haired pointer: German
+                                                                        short-haired
+                                                                        pointer
+                                                                    vizsla: vizsla
+                                                                setter:
+                                                                    Irish setter: Irish
+                                                                        setter
+                                                                    Gordon setter: Gordon
+                                                                        setter
+                                                                    English setter: English
+                                                                        setter
+                                                                retriever:
+                                                                    Labrador retriever: Labrador
+                                                                        retriever
+                                                                    Chesapeake Bay retriever: Chesapeake
+                                                                        Bay retriever
+                                                                    flat-coated retriever: flat-coated
+                                                                        retriever
+                                                                    golden retriever: golden
+                                                                        retriever
+                                                                    curly-coated retriever: curly-coated
+                                                                        retriever
+                                                                spaniel:
+                                                                    cocker spaniel: cocker
+                                                                        spaniel
+                                                                    clumber: clumber
+                                                                    springer spaniel:
+                                                                        Welsh springer spaniel: Welsh
+                                                                            springer
+                                                                            spaniel
+                                                                        English springer: English
+                                                                            springer
+                                                                    Sussex spaniel: Sussex
+                                                                        spaniel
+                                                                    Brittany spaniel: Brittany
+                                                                        spaniel
+                                                                    water spaniel:
+                                                                        Irish water spaniel: Irish
+                                                                            water
+                                                                            spaniel
+                                                            terrier:
+                                                                Lhasa: Lhasa
+                                                                Border terrier: Border
+                                                                    terrier
+                                                                Norfolk terrier: Norfolk
+                                                                    terrier
+                                                                schnauzer:
+                                                                    giant schnauzer: giant
+                                                                        schnauzer
+                                                                    standard schnauzer: standard
+                                                                        schnauzer
+                                                                    miniature schnauzer: miniature
+                                                                        schnauzer
+                                                                Bedlington terrier: Bedlington
+                                                                    terrier
+                                                                Boston bull: Boston
+                                                                    bull
+                                                                Airedale: Airedale
+                                                                fox terrier:
+                                                                    wire-haired fox terrier: wire-haired
+                                                                        fox terrier
+                                                                Irish terrier: Irish
+                                                                    terrier
+                                                                Scotch terrier: Scotch
+                                                                    terrier
+                                                                silky terrier: silky
+                                                                    terrier
+                                                                Australian terrier: Australian
+                                                                    terrier
+                                                                Yorkshire terrier: Yorkshire
+                                                                    terrier
+                                                                West Highland white terrier: West
+                                                                    Highland white
+                                                                    terrier
+                                                                wirehair:
+                                                                    Welsh terrier:
+                                                                        Sealyham terrier: Sealyham
+                                                                            terrier
+                                                                    Lakeland terrier: Lakeland
+                                                                        terrier
+                                                                Dandie Dinmont: Dandie
+                                                                    Dinmont
+                                                                Kerry blue terrier: Kerry
+                                                                    blue terrier
+                                                                Tibetan terrier: Tibetan
+                                                                    terrier
+                                                                Norwich terrier: Norwich
+                                                                    terrier
+                                                                cairn: cairn
+                                                                bullterrier:
+                                                                    Staffordshire bullterrier: Staffordshire
+                                                                        bullterrier
+                                                                    American Staffordshire terrier: American
+                                                                        Staffordshire
+                                                                        terrier
+                                                                soft-coated wheaten terrier: soft-coated
+                                                                    wheaten terrier
+                                                        Mexican hairless: Mexican
+                                                            hairless
+                                                        Leonberg: Leonberg
+                                                musteline mammal:
+                                                    black-footed ferret: black-footed
+                                                        ferret
+                                                    polecat: polecat
+                                                    badger: badger
+                                                    otter: otter
+                                                    weasel: weasel
+                                                    mink: mink
+                                                    skunk: skunk
+                                                viverrine:
+                                                    meerkat: meerkat
+                                                    mongoose: mongoose
+                                                procyonid:
+                                                    lesser panda: lesser panda
+                                                    giant panda: giant panda
+                                                bear:
+                                                    brown bear: brown bear
+                                                    American black bear: American
+                                                        black bear
+                                                    ice bear: ice bear
+                                                    sloth bear: sloth bear
+                                            pachyderm:
+                                                elephant:
+                                                    African elephant: African elephant
+                                                    Indian elephant: Indian elephant
+                                            edentate:
+                                                armadillo: armadillo
+                                                sloth:
+                                                    three-toed sloth: three-toed sloth
+                                            lagomorph:
+                                                leporid:
+                                                    rabbit:
+                                                        Angora: Angora
+                                                        wood rabbit: wood rabbit
+                                                    hare: hare
+                                            rodent:
+                                                porcupine: porcupine
+                                                squirrel:
+                                                    tree squirrel:
+                                                        fox squirrel: fox squirrel
+                                                cavy:
+                                                    guinea pig: guinea pig
+                                                marmot: marmot
+                                                hamster: hamster
+                                                beaver: beaver
+                                            primate:
+                                                monkey:
+                                                    Old World monkey:
+                                                        macaque: macaque
+                                                        proboscis monkey: proboscis
+                                                            monkey
+                                                        langur: langur
+                                                        baboon: baboon
+                                                        colobus: colobus
+                                                        patas: patas
+                                                        guenon: guenon
+                                                    New World monkey:
+                                                        howler monkey: howler monkey
+                                                        capuchin: capuchin
+                                                        marmoset: marmoset
+                                                        spider monkey: spider monkey
+                                                        squirrel monkey: squirrel
+                                                            monkey
+                                                        titi: titi
+                                                ape:
+                                                    anthropoid ape:
+                                                        great ape:
+                                                            chimpanzee: chimpanzee
+                                                            gorilla: gorilla
+                                                            orangutan: orangutan
+                                                        lesser ape:
+                                                            siamang: siamang
+                                                            gibbon: gibbon
+                                                lemur:
+                                                    Madagascar cat: Madagascar cat
+                                                    indri: indri
+                                            aquatic mammal:
+                                                cetacean:
+                                                    whale:
+                                                        baleen whale:
+                                                            grey whale: grey whale
+                                                        toothed whale:
+                                                            dolphin:
+                                                                killer whale: killer
+                                                                    whale
+                                                pinniped mammal:
+                                                    seal:
+                                                        eared seal:
+                                                            sea lion: sea lion
+                                                sea cow:
+                                                    dugong: dugong
+                                            ungulate:
+                                                even-toed ungulate:
+                                                    hippopotamus: hippopotamus
+                                                    ruminant:
+                                                        bovid:
+                                                            goat:
+                                                                wild goat:
+                                                                    ibex: ibex
+                                                            Old World buffalo:
+                                                                water buffalo: water
+                                                                    buffalo
+                                                            antelope:
+                                                                impala: impala
+                                                                gazelle: gazelle
+                                                                hartebeest: hartebeest
+                                                            sheep:
+                                                                ram: ram
+                                                            bison: bison
+                                                            bovine:
+                                                                cattle:
+                                                                    ox: ox
+                                                            wild sheep:
+                                                                mountain sheep:
+                                                                    bighorn: bighorn
+                                                    llama: llama
+                                                    swine:
+                                                        wild boar: wild boar
+                                                        hog: hog
+                                                        warthog: warthog
+                                                    camel:
+                                                        Arabian camel: Arabian camel
+                                                odd-toed ungulate:
+                                                    equine:
+                                                        horse:
+                                                            sorrel: sorrel
+                                                        zebra: zebra
+                                    bird:
+                                        cock: cock
+                                        aquatic bird:
+                                            swan:
+                                                black swan: black swan
+                                            wading bird:
+                                                limpkin: limpkin
+                                                bustard: bustard
+                                                spoonbill: spoonbill
+                                                stork:
+                                                    black stork: black stork
+                                                    white stork: white stork
+                                                rail:
+                                                    coot:
+                                                        American coot: American coot
+                                                heron:
+                                                    egret:
+                                                        American egret: American egret
+                                                    bittern: bittern
+                                                    little blue heron: little blue
+                                                        heron
+                                                flamingo: flamingo
+                                                crane: crane
+                                                shorebird:
+                                                    snipe:
+                                                        dowitcher: dowitcher
+                                                    oystercatcher: oystercatcher
+                                                    plover:
+                                                        turnstone:
+                                                            ruddy turnstone: ruddy
+                                                                turnstone
+                                                    sandpiper:
+                                                        red-backed sandpiper: red-backed
+                                                            sandpiper
+                                                        redshank: redshank
+                                            waterfowl:
+                                                anseriform bird:
+                                                    duck:
+                                                        sea duck:
+                                                            merganser:
+                                                                red-breasted merganser: red-breasted
+                                                                    merganser
+                                                        drake: drake
+                                                    goose: goose
+                                            seabird:
+                                                pelecaniform seabird:
+                                                    pelican: pelican
+                                                sphenisciform seabird:
+                                                    penguin:
+                                                        king penguin: king penguin
+                                                pelagic bird:
+                                                    albatross: albatross
+                                            gallinule:
+                                                purple gallinule:
+                                                    European gallinule: European gallinule
+                                        apodiform bird:
+                                            hummingbird: hummingbird
+                                        hen: hen
+                                        cuculiform bird:
+                                            cuckoo:
+                                                coucal: coucal
+                                        ratite:
+                                            ostrich: ostrich
+                                        passerine:
+                                            oscine:
+                                                thrush:
+                                                    robin: robin
+                                                    nightingale:
+                                                        bulbul: bulbul
+                                                finch:
+                                                    brambling: brambling
+                                                    bunting:
+                                                        indigo bunting: indigo bunting
+                                                    house finch: house finch
+                                                    goldfinch: goldfinch
+                                                    junco: junco
+                                                titmouse:
+                                                    chickadee: chickadee
+                                                corvine bird:
+                                                    jay: jay
+                                                    magpie: magpie
+                                                water ouzel: water ouzel
+                                        coraciiform bird:
+                                            bee eater: bee eater
+                                            hornbill: hornbill
+                                        parrot:
+                                            lory:
+                                                lorikeet: lorikeet
+                                            African grey: African grey
+                                            macaw: macaw
+                                            cockatoo:
+                                                sulphur-crested cockatoo: sulphur-crested
+                                                    cockatoo
+                                        gallinaceous bird:
+                                            game bird:
+                                                grouse:
+                                                    ptarmigan: ptarmigan
+                                                    prairie chicken: prairie chicken
+                                                    ruffed grouse: ruffed grouse
+                                                    black grouse: black grouse
+                                                phasianid:
+                                                    quail: quail
+                                                    partridge: partridge
+                                                    pheasant:
+                                                        peafowl:
+                                                            peacock: peacock
+                                        piciform bird:
+                                            toucan: toucan
+                                            jacamar: jacamar
+                                        bird of prey:
+                                            owl:
+                                                great grey owl: great grey owl
+                                            vulture: vulture
+                                            hawk:
+                                                kite: kite
+                                            eagle:
+                                                bald eagle: bald eagle
+                                    aquatic vertebrate:
+                                        fish:
+                                            bony fish:
+                                                teleost fish:
+                                                    ganoid:
+                                                        sturgeon: sturgeon
+                                                        gar: gar
+                                                    spiny-finned fish:
+                                                        plectognath:
+                                                            puffer: puffer
+                                                        scorpaenoid:
+                                                            scorpaenid:
+                                                                lionfish: lionfish
+                                                        percoid fish:
+                                                            butterfly fish:
+                                                                rock beauty: rock
+                                                                    beauty
+                                                            damselfish:
+                                                                anemone fish: anemone
+                                                                    fish
+                                                    soft-finned fish:
+                                                        eel: eel
+                                                        salmonid:
+                                                            salmon:
+                                                                coho: coho
+                                                        cypriniform fish:
+                                                            cyprinid:
+                                                                tench: tench
+                                                                goldfish: goldfish
+                                            cartilaginous fish:
+                                                elasmobranch:
+                                                    shark:
+                                                        requiem shark:
+                                                            tiger shark: tiger shark
+                                                        hammerhead: hammerhead
+                                                        mackerel shark:
+                                                            great white shark: great
+                                                                white shark
+                                                    ray:
+                                                        electric ray: electric ray
+                                                        stingray: stingray
+                                            food fish:
+                                                barracouta: barracouta
+                                                salmon:
+                                                    coho: coho
+                                    amphibian:
+                                        salamander:
+                                            European fire salamander: European fire
+                                                salamander
+                                            newt:
+                                                eft: eft
+                                                common newt: common newt
+                                            ambystomid:
+                                                axolotl: axolotl
+                                                spotted salamander: spotted salamander
+                                        frog:
+                                            tailed frog: tailed frog
+                                            tree frog: tree frog
+                                            true frog:
+                                                bullfrog: bullfrog
+                            game:
+                                game bird:
+                                    grouse:
+                                        ptarmigan: ptarmigan
+                                        prairie chicken: prairie chicken
+                                        ruffed grouse: ruffed grouse
+                                        black grouse: black grouse
+                                    phasianid:
+                                        quail: quail
+                                        partridge: partridge
+                                        pheasant:
+                                            peafowl:
+                                                peacock: peacock
+                            invertebrate:
+                                worm:
+                                    flatworm: flatworm
+                                    nematode: nematode
+                                arthropod:
+                                    trilobite: trilobite
+                                    centipede: centipede
+                                    crustacean:
+                                        malacostracan crustacean:
+                                            isopod: isopod
+                                        decapod crustacean:
+                                            lobster:
+                                                true lobster:
+                                                    American lobster: American lobster
+                                                spiny lobster: spiny lobster
+                                            crayfish: crayfish
+                                            crab:
+                                                Dungeness crab: Dungeness crab
+                                                king crab: king crab
+                                                fiddler crab: fiddler crab
+                                                rock crab: rock crab
+                                            hermit crab: hermit crab
+                                    arachnid:
+                                        acarine:
+                                            tick: tick
+                                        scorpion: scorpion
+                                        spider:
+                                            garden spider: garden spider
+                                            black and gold garden spider: black and
+                                                gold garden spider
+                                            barn spider: barn spider
+                                            black widow: black widow
+                                            wolf spider: wolf spider
+                                            tarantula: tarantula
+                                        harvestman: harvestman
+                                    insect:
+                                        phasmid:
+                                            walking stick: walking stick
+                                        beetle:
+                                            ground beetle: ground beetle
+                                            leaf beetle: leaf beetle
+                                            ladybug: ladybug
+                                            long-horned beetle: long-horned beetle
+                                            weevil: weevil
+                                            lamellicorn beetle:
+                                                scarabaeid beetle:
+                                                    dung beetle: dung beetle
+                                                    rhinoceros beetle: rhinoceros
+                                                        beetle
+                                            tiger beetle: tiger beetle
+                                        hymenopterous insect:
+                                            ant: ant
+                                            bee: bee
+                                        neuropteron:
+                                            lacewing: lacewing
+                                        dipterous insect:
+                                            fly: fly
+                                        dictyopterous insect:
+                                            mantis: mantis
+                                            cockroach: cockroach
+                                        odonate:
+                                            damselfly: damselfly
+                                            dragonfly: dragonfly
+                                        homopterous insect:
+                                            leafhopper: leafhopper
+                                            cicada: cicada
+                                        lepidopterous insect:
+                                            butterfly:
+                                                nymphalid:
+                                                    admiral: admiral
+                                                danaid:
+                                                    monarch: monarch
+                                                lycaenid: lycaenid
+                                                pierid:
+                                                    cabbage butterfly: cabbage butterfly
+                                                ringlet: ringlet
+                                                sulphur butterfly: sulphur butterfly
+                                        orthopterous insect:
+                                            cricket: cricket
+                                            grasshopper: grasshopper
+                                echinoderm:
+                                    sea cucumber: sea cucumber
+                                    sea urchin: sea urchin
+                                    starfish: starfish
+                                mollusk:
+                                    gastropod:
+                                        conch: conch
+                                        snail: snail
+                                        slug: slug
+                                        sea slug: sea slug
+                                    cephalopod:
+                                        chambered nautilus: chambered nautilus
+                                    chiton: chiton
+                                coelenterate:
+                                    jellyfish: jellyfish
+                                    anthozoan:
+                                        coral:
+                                            stony coral:
+                                                brain coral: brain coral
+                                        sea anemone: sea anemone
+                            domestic animal:
+                                domestic cat:
+                                    Siamese cat: Siamese cat
+                                    Persian cat: Persian cat
+                                    tiger cat: tiger cat
+                                    Egyptian cat: Egyptian cat
+                                    tabby: tabby
+                                dog:
+                                    Newfoundland: Newfoundland
+                                    corgi:
+                                        Pembroke: Pembroke
+                                        Cardigan: Cardigan
+                                    poodle:
+                                        toy poodle: toy poodle
+                                        standard poodle: standard poodle
+                                        miniature poodle: miniature poodle
+                                    dalmatian: dalmatian
+                                    pug: pug
+                                    griffon:
+                                        Brabancon griffon: Brabancon griffon
+                                    spitz:
+                                        keeshond: keeshond
+                                        Pomeranian: Pomeranian
+                                        Samoyed: Samoyed
+                                        chow: chow
+                                    toy dog:
+                                        toy spaniel:
+                                            papillon: papillon
+                                            English toy spaniel:
+                                                Blenheim spaniel: Blenheim spaniel
+                                        Shih-Tzu: Shih-Tzu
+                                        Pekinese: Pekinese
+                                        toy terrier: toy terrier
+                                        Japanese spaniel: Japanese spaniel
+                                        Maltese dog: Maltese dog
+                                        Chihuahua: Chihuahua
+                                    basenji: basenji
+                                    Great Pyrenees: Great Pyrenees
+                                    working dog:
+                                        shepherd dog:
+                                            Border collie: Border collie
+                                            Old English sheepdog: Old English sheepdog
+                                            collie: collie
+                                            Belgian sheepdog:
+                                                groenendael: groenendael
+                                                malinois: malinois
+                                            kelpie: kelpie
+                                            Rottweiler: Rottweiler
+                                            briard: briard
+                                            komondor: komondor
+                                            German shepherd: German shepherd
+                                            Shetland sheepdog: Shetland sheepdog
+                                            Bouvier des Flandres: Bouvier des Flandres
+                                        bull mastiff: bull mastiff
+                                        Saint Bernard: Saint Bernard
+                                        sled dog:
+                                            malamute: malamute
+                                            Siberian husky: Siberian husky
+                                        watchdog:
+                                            pinscher:
+                                                miniature pinscher: miniature pinscher
+                                                affenpinscher: affenpinscher
+                                                Doberman: Doberman
+                                            schipperke: schipperke
+                                            kuvasz: kuvasz
+                                        mastiff:
+                                            Tibetan mastiff: Tibetan mastiff
+                                        bulldog:
+                                            French bulldog: French bulldog
+                                        Eskimo dog: Eskimo dog
+                                        Great Dane: Great Dane
+                                        boxer: boxer
+                                        Sennenhunde:
+                                            Bernese mountain dog: Bernese mountain
+                                                dog
+                                            Appenzeller: Appenzeller
+                                            EntleBucher: EntleBucher
+                                            Greater Swiss Mountain dog: Greater Swiss
+                                                Mountain dog
+                                    hunting dog:
+                                        Rhodesian ridgeback: Rhodesian ridgeback
+                                        hound:
+                                            bluetick: bluetick
+                                            coonhound:
+                                                black-and-tan coonhound: black-and-tan
+                                                    coonhound
+                                            basset: basset
+                                            Afghan hound: Afghan hound
+                                            redbone: redbone
+                                            Scottish deerhound: Scottish deerhound
+                                            bloodhound: bloodhound
+                                            Saluki: Saluki
+                                            foxhound:
+                                                English foxhound: English foxhound
+                                                Walker hound: Walker hound
+                                            greyhound:
+                                                Italian greyhound: Italian greyhound
+                                                whippet: whippet
+                                            otterhound: otterhound
+                                            Norwegian elkhound: Norwegian elkhound
+                                            beagle: beagle
+                                            Ibizan hound: Ibizan hound
+                                            wolfhound:
+                                                borzoi: borzoi
+                                                Irish wolfhound: Irish wolfhound
+                                            Weimaraner: Weimaraner
+                                        sporting dog:
+                                            pointer:
+                                                German short-haired pointer: German
+                                                    short-haired pointer
+                                                vizsla: vizsla
+                                            setter:
+                                                Irish setter: Irish setter
+                                                Gordon setter: Gordon setter
+                                                English setter: English setter
+                                            retriever:
+                                                Labrador retriever: Labrador retriever
+                                                Chesapeake Bay retriever: Chesapeake
+                                                    Bay retriever
+                                                flat-coated retriever: flat-coated
+                                                    retriever
+                                                golden retriever: golden retriever
+                                                curly-coated retriever: curly-coated
+                                                    retriever
+                                            spaniel:
+                                                cocker spaniel: cocker spaniel
+                                                clumber: clumber
+                                                springer spaniel:
+                                                    Welsh springer spaniel: Welsh
+                                                        springer spaniel
+                                                    English springer: English springer
+                                                Sussex spaniel: Sussex spaniel
+                                                Brittany spaniel: Brittany spaniel
+                                                water spaniel:
+                                                    Irish water spaniel: Irish water
+                                                        spaniel
+                                        terrier:
+                                            Lhasa: Lhasa
+                                            Border terrier: Border terrier
+                                            Norfolk terrier: Norfolk terrier
+                                            schnauzer:
+                                                giant schnauzer: giant schnauzer
+                                                standard schnauzer: standard schnauzer
+                                                miniature schnauzer: miniature schnauzer
+                                            Bedlington terrier: Bedlington terrier
+                                            Boston bull: Boston bull
+                                            Airedale: Airedale
+                                            fox terrier:
+                                                wire-haired fox terrier: wire-haired
+                                                    fox terrier
+                                            Irish terrier: Irish terrier
+                                            Scotch terrier: Scotch terrier
+                                            silky terrier: silky terrier
+                                            Australian terrier: Australian terrier
+                                            Yorkshire terrier: Yorkshire terrier
+                                            West Highland white terrier: West Highland
+                                                white terrier
+                                            wirehair:
+                                                Welsh terrier:
+                                                    Sealyham terrier: Sealyham terrier
+                                                Lakeland terrier: Lakeland terrier
+                                            Dandie Dinmont: Dandie Dinmont
+                                            Kerry blue terrier: Kerry blue terrier
+                                            Tibetan terrier: Tibetan terrier
+                                            Norwich terrier: Norwich terrier
+                                            cairn: cairn
+                                            bullterrier:
+                                                Staffordshire bullterrier: Staffordshire
+                                                    bullterrier
+                                                American Staffordshire terrier: American
+                                                    Staffordshire terrier
+                                            soft-coated wheaten terrier: soft-coated
+                                                wheaten terrier
+                                    Mexican hairless: Mexican hairless
+                                    Leonberg: Leonberg
+                        person:
+                            contestant:
+                                athlete:
+                                    ballplayer: ballplayer
+                                player:
+                                    ballplayer: ballplayer
+                            peer:
+                                associate:
+                                    participant:
+                                        groom: groom
+                            explorer:
+                                diver:
+                                    scuba diver: scuba diver
+                        fungus:
+                            basidiomycete:
+                                agaric: agaric
+                            hen-of-the-woods: hen-of-the-woods
+                            gyromitra: gyromitra
+                            bolete: bolete
+                            stinkhorn: stinkhorn
+                            coral fungus: coral fungus
+                            earthstar: earthstar
+                artifact:
+                    plaything:
+                        swing: swing
+                        teddy: teddy
+                    sheet:
+                        plate:
+                            disk:
+                                puck: puck
+                        board:
+                            scoreboard: scoreboard
+                    creation:
+                        product:
+                            work:
+                                publication:
+                                    magazine:
+                                        comic book: comic book
+                    structure:
+                        area:
+                            patio: patio
+                        tower:
+                            beacon: beacon
+                        establishment:
+                            institution:
+                                penal institution:
+                                    correctional institution:
+                                        prison: prison
+                            place of business:
+                                mercantile establishment:
+                                    marketplace:
+                                        grocery store: grocery store
+                                    shop:
+                                        confectionery: confectionery
+                                        shoe shop: shoe shop
+                                        toyshop: toyshop
+                                        barbershop: barbershop
+                                        tobacco shop: tobacco shop
+                                        butcher shop: butcher shop
+                                        bookshop: bookshop
+                                        bakery: bakery
+                        housing:
+                            dwelling:
+                                yurt: yurt
+                                house:
+                                    residence:
+                                        palace: palace
+                                        religious residence:
+                                            monastery: monastery
+                                cliff dwelling: cliff dwelling
+                            mobile home: mobile home
+                        defensive structure:
+                            fortification:
+                                castle: castle
+                        fountain: fountain
+                        coil: coil
+                        signboard:
+                            scoreboard: scoreboard
+                        arch:
+                            triumphal arch: triumphal arch
+                        supporting structure:
+                            framework:
+                                rack:
+                                    plate rack: plate rack
+                                honeycomb: honeycomb
+                            support:
+                                pedestal: pedestal
+                        building:
+                            greenhouse: greenhouse
+                            place of worship:
+                                shrine:
+                                    stupa: stupa
+                                church: church
+                                mosque: mosque
+                            house:
+                                residence:
+                                    palace: palace
+                                    religious residence:
+                                        monastery: monastery
+                            library: library
+                            planetarium: planetarium
+                            outbuilding:
+                                shed:
+                                    boathouse: boathouse
+                                    apiary: apiary
+                            farm building:
+                                barn: barn
+                            theater:
+                                home theater: home theater
+                                cinema: cinema
+                            restaurant: restaurant
+                        obstruction:
+                            barrier:
+                                fence:
+                                    picket fence: picket fence
+                                    rail fence:
+                                        worm fence: worm fence
+                                    chainlink fence: chainlink fence
+                                    stone wall: stone wall
+                                breakwater: breakwater
+                                movable barrier:
+                                    door:
+                                        sliding door: sliding door
+                                    gate:
+                                        turnstile: turnstile
+                                grate:
+                                    grille: grille
+                                bannister: bannister
+                                dam: dam
+                        shelter:
+                            tent:
+                                mountain tent: mountain tent
+                        altar: altar
+                        column:
+                            totem pole: totem pole
+                            obelisk: obelisk
+                        building complex:
+                            plant:
+                                factory:
+                                    lumbermill: lumbermill
+                        bridge:
+                            steel arch bridge: steel arch bridge
+                            viaduct: viaduct
+                            suspension bridge: suspension bridge
+                        landing:
+                            dock: dock
+                        memorial:
+                            brass: brass
+                            triumphal arch: triumphal arch
+                            megalith: megalith
+                    instrumentality:
+                        furnishing:
+                            furniture:
+                                cabinet:
+                                    medicine chest: medicine chest
+                                    china cabinet: china cabinet
+                                bookcase: bookcase
+                                seat:
+                                    toilet seat: toilet seat
+                                    bench:
+                                        park bench: park bench
+                                    sofa:
+                                        convertible:
+                                            studio couch: studio couch
+                                    chair:
+                                        chair of state:
+                                            throne: throne
+                                        folding chair: folding chair
+                                        barber chair: barber chair
+                                        rocking chair: rocking chair
+                                wardrobe: wardrobe
+                                office furniture:
+                                    file: file
+                                wall unit:
+                                    entertainment center: entertainment center
+                                baby bed:
+                                    crib: crib
+                                    cradle: cradle
+                                    bassinet: bassinet
+                                table:
+                                    pool table: pool table
+                                    desk: desk
+                                bedroom furniture:
+                                    bed:
+                                        four-poster: four-poster
+                                chest of drawers:
+                                    chiffonier: chiffonier
+                                lamp:
+                                    table lamp: table lamp
+                            rug:
+                                prayer rug: prayer rug
+                            curtain:
+                                theater curtain: theater curtain
+                                shower curtain: shower curtain
+                        toiletry:
+                            powder:
+                                face powder: face powder
+                            lotion: lotion
+                            perfume: perfume
+                            hair spray: hair spray
+                            cosmetic:
+                                makeup:
+                                    lipstick: lipstick
+                                    face powder: face powder
+                            cream:
+                                sunscreen: sunscreen
+                        container:
+                            shaker:
+                                cocktail shaker: cocktail shaker
+                                saltshaker: saltshaker
+                            cassette: cassette
+                            receptacle:
+                                tray: tray
+                            dish:
+                                bowl:
+                                    mixing bowl: mixing bowl
+                                    soup bowl: soup bowl
+                                Petri dish: Petri dish
+                            envelope: envelope
+                            glass:
+                                goblet: goblet
+                                beer glass: beer glass
+                            measure:
+                                measuring cup: measuring cup
+                            vessel:
+                                tank:
+                                    reservoir:
+                                        cistern:
+                                            rain barrel: rain barrel
+                                        water tower: water tower
+                                pitcher: pitcher
+                                tub: tub
+                                ladle: ladle
+                                basin:
+                                    washbasin: washbasin
+                                bucket: bucket
+                                drinking vessel:
+                                    mug:
+                                        coffee mug: coffee mug
+                                pot:
+                                    teapot: teapot
+                                    coffeepot: coffeepot
+                                    caldron: caldron
+                                barrel: barrel
+                                bathtub: bathtub
+                                jar:
+                                    beaker: beaker
+                                    vase: vase
+                                bottle:
+                                    pop bottle: pop bottle
+                                    water bottle: water bottle
+                                    beer bottle: beer bottle
+                                    jug:
+                                        whiskey jug: whiskey jug
+                                        water jug: water jug
+                                    pill bottle: pill bottle
+                                    wine bottle: wine bottle
+                                mortar: mortar
+                            thimble: thimble
+                            wheeled vehicle:
+                                tricycle: tricycle
+                                trailer:
+                                    mobile home: mobile home
+                                car:
+                                    freight car: freight car
+                                    passenger car: passenger car
+                                self-propelled vehicle:
+                                    armored vehicle:
+                                        tank: tank
+                                    motor vehicle:
+                                        go-kart: go-kart
+                                        snowplow: snowplow
+                                        motorcycle:
+                                            minibike:
+                                                moped: moped
+                                        truck:
+                                            trailer truck: trailer truck
+                                            garbage truck: garbage truck
+                                            van:
+                                                passenger van:
+                                                    minivan: minivan
+                                                police van: police van
+                                                moving van: moving van
+                                            pickup: pickup
+                                            fire engine: fire engine
+                                            tow truck: tow truck
+                                        golfcart: golfcart
+                                        amphibian: amphibian
+                                        car:
+                                            sports car: sports car
+                                            Model T: Model T
+                                            cab: cab
+                                            minivan: minivan
+                                            racer: racer
+                                            limousine: limousine
+                                            ambulance: ambulance
+                                            convertible: convertible
+                                            beach wagon: beach wagon
+                                            jeep: jeep
+                                    tracked vehicle:
+                                        tank: tank
+                                        half track: half track
+                                        snowmobile: snowmobile
+                                    tractor: tractor
+                                    recreational vehicle: recreational vehicle
+                                    forklift: forklift
+                                    streetcar: streetcar
+                                    locomotive:
+                                        electric locomotive: electric locomotive
+                                        steam locomotive: steam locomotive
+                                handcart:
+                                    barrow: barrow
+                                    shopping cart: shopping cart
+                                unicycle: unicycle
+                                bicycle:
+                                    bicycle-built-for-two: bicycle-built-for-two
+                                    mountain bike: mountain bike
+                                wagon:
+                                    cart:
+                                        horse cart: horse cart
+                                        jinrikisha: jinrikisha
+                                        oxcart: oxcart
+                                motor scooter: motor scooter
+                            savings bank:
+                                piggy bank: piggy bank
+                            case:
+                                wallet: wallet
+                            bin:
+                                ashcan: ashcan
+                            pot: pot
+                            spoon:
+                                wooden spoon: wooden spoon
+                            dispenser:
+                                soap dispenser: soap dispenser
+                            can:
+                                milk can: milk can
+                            basket:
+                                shopping basket: shopping basket
+                                hamper: hamper
+                            box:
+                                mailbox: mailbox
+                                strongbox:
+                                    safe: safe
+                                carton: carton
+                                chest: chest
+                                crate: crate
+                                pencil box: pencil box
+                            bag:
+                                backpack: backpack
+                                purse: purse
+                                plastic bag: plastic bag
+                                mailbag: mailbag
+                                sleeping bag: sleeping bag
+                            package:
+                                packet: packet
+                        device:
+                            runner:
+                                ski: ski
+                            instrument:
+                                weapon:
+                                    missile: missile
+                                    bow: bow
+                                    gun:
+                                        cannon: cannon
+                                        firearm:
+                                            autoloader:
+                                                automatic firearm:
+                                                    machine gun:
+                                                        automatic rifle:
+                                                            assault rifle: assault
+                                                                rifle
+                                                    automatic rifle:
+                                                        assault rifle: assault rifle
+                                            rifle: rifle
+                                            pistol:
+                                                revolver: revolver
+                                    projectile: projectile
+                                scientific instrument:
+                                    magnifier:
+                                        telescope:
+                                            astronomical telescope:
+                                                radio telescope: radio telescope
+                                        microscope:
+                                            light microscope:
+                                                hand glass:
+                                                    loupe: loupe
+                                navigational instrument:
+                                    compass:
+                                        magnetic compass: magnetic compass
+                                medical instrument:
+                                    stethoscope: stethoscope
+                                    syringe: syringe
+                                instrument of execution:
+                                    guillotine: guillotine
+                                measuring instrument:
+                                    timepiece:
+                                        clock:
+                                            wall clock: wall clock
+                                            analog clock: analog clock
+                                            digital clock: digital clock
+                                        watch:
+                                            digital watch: digital watch
+                                        timer:
+                                            stopwatch: stopwatch
+                                            parking meter: parking meter
+                                        sundial: sundial
+                                        sandglass:
+                                            hourglass: hourglass
+                                    barometer: barometer
+                                    measuring stick:
+                                        rule: rule
+                                    meter:
+                                        odometer: odometer
+                                    scale: scale
+                                optical instrument:
+                                    spectacles:
+                                        sunglasses: sunglasses
+                                    projector: projector
+                                    binoculars: binoculars
+                            musical instrument:
+                                percussion instrument:
+                                    drum: drum
+                                    marimba: marimba
+                                    steel drum: steel drum
+                                    piano:
+                                        grand piano: grand piano
+                                        upright: upright
+                                    maraca: maraca
+                                    gong: gong
+                                    chime: chime
+                                wind instrument:
+                                    free-reed instrument:
+                                        accordion: accordion
+                                        harmonica: harmonica
+                                    ocarina: ocarina
+                                    organ: organ
+                                    brass:
+                                        cornet: cornet
+                                        trombone: trombone
+                                        French horn: French horn
+                                    pipe:
+                                        panpipe: panpipe
+                                    woodwind:
+                                        beating-reed instrument:
+                                            single-reed instrument:
+                                                sax: sax
+                                            double-reed instrument:
+                                                bassoon: bassoon
+                                                oboe: oboe
+                                        flute: flute
+                                keyboard instrument:
+                                    organ: organ
+                                    piano:
+                                        grand piano: grand piano
+                                        upright: upright
+                                    accordion: accordion
+                                stringed instrument:
+                                    bowed stringed instrument:
+                                        violin: violin
+                                        cello: cello
+                                    guitar:
+                                        acoustic guitar: acoustic guitar
+                                        electric guitar: electric guitar
+                                    banjo: banjo
+                                    piano:
+                                        grand piano: grand piano
+                                        upright: upright
+                                    chordophone:
+                                        harp: harp
+                            applicator:
+                                paintbrush: paintbrush
+                            filter:
+                                oil filter: oil filter
+                                strainer: strainer
+                            breathing device:
+                                snorkel: snorkel
+                                oxygen mask: oxygen mask
+                            lighter: lighter
+                            remote control: remote control
+                            blower:
+                                hand blower: hand blower
+                            keyboard:
+                                computer keyboard: computer keyboard
+                                typewriter keyboard: typewriter keyboard
+                            lifting device:
+                                crane: crane
+                            mechanism:
+                                mechanical device:
+                                    pump:
+                                        gas pump: gas pump
+                                    swing: swing
+                                    hook: hook
+                                    machine:
+                                        wheel:
+                                            potter's wheel: potter's wheel
+                                            pinwheel: pinwheel
+                                            paddlewheel: paddlewheel
+                                            car wheel: car wheel
+                                    ride:
+                                        carousel: carousel
+                                    winder:
+                                        reel: reel
+                                radiator: radiator
+                                rotating mechanism:
+                                    circle:
+                                        disk:
+                                            puck: puck
+                                control:
+                                    joystick: joystick
+                                    switch: switch
+                            reflector:
+                                solar dish: solar dish
+                                mirror:
+                                    car mirror: car mirror
+                            memory device:
+                                magnetic disk:
+                                    hard disc: hard disc
+                            source of illumination:
+                                lamp:
+                                    lantern:
+                                        jack-o'-lantern: jack-o'-lantern
+                                    candle: candle
+                                    spotlight: spotlight
+                                light:
+                                    torch: torch
+                            pick: pick
+                            acoustic device:
+                                whistle: whistle
+                            optical device:
+                                lens:
+                                    converging lens:
+                                        sunglass: sunglass
+                            support:
+                                brace:
+                                    neck brace: neck brace
+                                pier: pier
+                                rack:
+                                    tripod: tripod
+                                structural member:
+                                    upright:
+                                        post:
+                                            maypole: maypole
+                            heater:
+                                space heater: space heater
+                                stove: stove
+                            trap:
+                                mousetrap: mousetrap
+                                web:
+                                    spider web: spider web
+                            fan:
+                                electric fan: electric fan
+                            signaling device:
+                                whistle: whistle
+                            machine:
+                                textile machine:
+                                    sewing machine: sewing machine
+                                computer:
+                                    digital computer:
+                                        personal computer:
+                                            portable computer:
+                                                notebook: notebook
+                                                laptop: laptop
+                                                hand-held computer: hand-held computer
+                                            desktop computer: desktop computer
+                                    web site: web site
+                                    analog computer:
+                                        slide rule: slide rule
+                                printer:
+                                    printer: printer
+                                calculator:
+                                    abacus: abacus
+                                farm machine:
+                                    harvester: harvester
+                                    thresher: thresher
+                                cash machine: cash machine
+                                power tool:
+                                    power saw:
+                                        chain saw: chain saw
+                                    power drill: power drill
+                                slot machine:
+                                    vending machine: vending machine
+                                    slot: slot
+                            electrical device:
+                                transducer:
+                                    electro-acoustic transducer:
+                                        microphone: microphone
+                                        loudspeaker: loudspeaker
+                            restraint:
+                                safety belt:
+                                    seat belt: seat belt
+                                fastener:
+                                    clip:
+                                        hair slide: hair slide
+                                    lock:
+                                        padlock: padlock
+                                        combination lock: combination lock
+                                    nail: nail
+                                    knot: knot
+                                    pin:
+                                        safety pin: safety pin
+                                    buckle: buckle
+                                    screw: screw
+                                brake:
+                                    brake system:
+                                        hydraulic brake:
+                                            disk brake: disk brake
+                                muzzle: muzzle
+                            strengthener:
+                                brace:
+                                    neck brace: neck brace
+                            airfoil:
+                                wing: wing
+                            electronic device:
+                                display:
+                                    screen: screen
+                                mouse: mouse
+                        medium:
+                            print media:
+                                press:
+                                    magazine:
+                                        comic book: comic book
+                        equipment:
+                            satellite:
+                                spacecraft:
+                                    space shuttle: space shuttle
+                            game equipment:
+                                pool table: pool table
+                                game:
+                                    puzzle:
+                                        jigsaw puzzle: jigsaw puzzle
+                                        crossword puzzle: crossword puzzle
+                                ball:
+                                    volleyball: volleyball
+                                    golf ball: golf ball
+                                    croquet ball: croquet ball
+                                    tennis ball: tennis ball
+                                    ping-pong ball: ping-pong ball
+                                    baseball: baseball
+                                    punching bag: punching bag
+                                    soccer ball: soccer ball
+                                    basketball: basketball
+                                    rugby ball: rugby ball
+                            apparatus:
+                                duplicator:
+                                    photocopier: photocopier
+                            gear:
+                                rig:
+                                    drill rig:
+                                        drilling platform: drilling platform
+                                kit:
+                                    carpenter's kit: carpenter's kit
+                            electronic equipment:
+                                modem: modem
+                                audio system:
+                                    reproducer:
+                                        stereo:
+                                            iPod: iPod
+                                cassette player: cassette player
+                                peripheral:
+                                    printer: printer
+                                    data input device:
+                                        joystick: joystick
+                                        computer keyboard: computer keyboard
+                                monitor: monitor
+                                CD player: CD player
+                                tape player: tape player
+                                telephone:
+                                    radiotelephone:
+                                        cellular telephone: cellular telephone
+                                    pay-phone: pay-phone
+                                    dial telephone: dial telephone
+                                oscilloscope: oscilloscope
+                            rescue equipment:
+                                parachute: parachute
+                            sports equipment:
+                                croquet equipment:
+                                    croquet ball: croquet ball
+                                gymnastic apparatus:
+                                    balance beam: balance beam
+                                    parallel bars: parallel bars
+                                    horizontal bar: horizontal bar
+                                basketball equipment:
+                                    basketball: basketball
+                                golf equipment:
+                                    golf ball: golf ball
+                                    golfcart: golfcart
+                                weight:
+                                    dumbbell: dumbbell
+                                    barbell: barbell
+                                baseball equipment:
+                                    baseball: baseball
+                            photographic equipment:
+                                camera:
+                                    Polaroid camera: Polaroid camera
+                                    reflex camera: reflex camera
+                        system:
+                            audio system:
+                                reproducer:
+                                    stereo:
+                                        iPod: iPod
+                            communication system:
+                                radio: radio
+                                telecommunication system:
+                                    television: television
+                            maze: maze
+                        connection:
+                            attachment:
+                                ligament:
+                                    chain: chain
+                        implement:
+                            cleaning implement:
+                                swab: swab
+                                broom: broom
+                            stick:
+                                matchstick: matchstick
+                                staff:
+                                    flagpole: flagpole
+                                    crutch: crutch
+                                drumstick: drumstick
+                                spindle: spindle
+                            brush:
+                                paintbrush: paintbrush
+                            rod:
+                                pole: pole
+                            oar:
+                                paddle: paddle
+                            eraser:
+                                rubber eraser: rubber eraser
+                            tool:
+                                drill:
+                                    power drill: power drill
+                                plow: plow
+                                power tool:
+                                    power saw:
+                                        chain saw: chain saw
+                                    power drill: power drill
+                                garden tool:
+                                    lawn mower: lawn mower
+                                hand tool:
+                                    plane: plane
+                                    plunger: plunger
+                                    screwdriver: screwdriver
+                                    shovel: shovel
+                                    hammer: hammer
+                                    opener:
+                                        can opener: can opener
+                                        bottle opener:
+                                            corkscrew: corkscrew
+                                cutting implement:
+                                    cutter:
+                                        edge tool:
+                                            knife:
+                                                letter opener: letter opener
+                                                cleaver: cleaver
+                                            plane: plane
+                                            ax:
+                                                hatchet: hatchet
+                            bar:
+                                lever:
+                                    key:
+                                        space bar: space bar
+                            sports implement:
+                                racket: racket
+                            writing implement:
+                                pen:
+                                    quill: quill
+                                    ballpoint: ballpoint
+                                    fountain pen: fountain pen
+                            utensil:
+                                kitchen utensil:
+                                    cooking utensil:
+                                        pan:
+                                            wok: wok
+                                            frying pan: frying pan
+                                        cooker:
+                                            Crock Pot: Crock Pot
+                                        pot:
+                                            teapot: teapot
+                                            coffeepot: coffeepot
+                                            caldron: caldron
+                                        turner:
+                                            spatula: spatula
+                            sharpener:
+                                pencil sharpener: pencil sharpener
+                        conveyance:
+                            vehicle:
+                                sled:
+                                    dogsled: dogsled
+                                    bobsled: bobsled
+                                military vehicle:
+                                    tank: tank
+                                    warship:
+                                        aircraft carrier: aircraft carrier
+                                        submersible:
+                                            submarine: submarine
+                                    half track: half track
+                                    warplane: warplane
+                                wheeled vehicle:
+                                    tricycle: tricycle
+                                    trailer:
+                                        mobile home: mobile home
+                                    car:
+                                        freight car: freight car
+                                        passenger car: passenger car
+                                    self-propelled vehicle:
+                                        armored vehicle:
+                                            tank: tank
+                                        motor vehicle:
+                                            go-kart: go-kart
+                                            snowplow: snowplow
+                                            motorcycle:
+                                                minibike:
+                                                    moped: moped
+                                            truck:
+                                                trailer truck: trailer truck
+                                                garbage truck: garbage truck
+                                                van:
+                                                    passenger van:
+                                                        minivan: minivan
+                                                    police van: police van
+                                                    moving van: moving van
+                                                pickup: pickup
+                                                fire engine: fire engine
+                                                tow truck: tow truck
+                                            golfcart: golfcart
+                                            amphibian: amphibian
+                                            car:
+                                                sports car: sports car
+                                                Model T: Model T
+                                                cab: cab
+                                                minivan: minivan
+                                                racer: racer
+                                                limousine: limousine
+                                                ambulance: ambulance
+                                                convertible: convertible
+                                                beach wagon: beach wagon
+                                                jeep: jeep
+                                        tracked vehicle:
+                                            tank: tank
+                                            half track: half track
+                                            snowmobile: snowmobile
+                                        tractor: tractor
+                                        recreational vehicle: recreational vehicle
+                                        forklift: forklift
+                                        streetcar: streetcar
+                                        locomotive:
+                                            electric locomotive: electric locomotive
+                                            steam locomotive: steam locomotive
+                                    handcart:
+                                        barrow: barrow
+                                        shopping cart: shopping cart
+                                    unicycle: unicycle
+                                    bicycle:
+                                        bicycle-built-for-two: bicycle-built-for-two
+                                        mountain bike: mountain bike
+                                    wagon:
+                                        cart:
+                                            horse cart: horse cart
+                                            jinrikisha: jinrikisha
+                                            oxcart: oxcart
+                                    motor scooter: motor scooter
+                                rocket:
+                                    missile: missile
+                                craft:
+                                    vessel:
+                                        ship:
+                                            passenger ship:
+                                                liner: liner
+                                            wreck: wreck
+                                            pirate: pirate
+                                            warship:
+                                                aircraft carrier: aircraft carrier
+                                                submersible:
+                                                    submarine: submarine
+                                            cargo ship:
+                                                container ship: container ship
+                                        boat:
+                                            gondola: gondola
+                                            small boat:
+                                                yawl: yawl
+                                                canoe: canoe
+                                            motorboat:
+                                                speedboat: speedboat
+                                            fireboat: fireboat
+                                            sea boat:
+                                                lifeboat: lifeboat
+                                        sailing vessel:
+                                            schooner: schooner
+                                            sailboat:
+                                                catamaran: catamaran
+                                                trimaran: trimaran
+                                    aircraft:
+                                        heavier-than-air craft:
+                                            airplane:
+                                                airliner: airliner
+                                            warplane: warplane
+                                        lighter-than-air craft:
+                                            airship: airship
+                                            balloon: balloon
+                                    spacecraft:
+                                        space shuttle: space shuttle
+                            public transport:
+                                train:
+                                    passenger train:
+                                        bullet train: bullet train
+                                bus:
+                                    school bus: school bus
+                                    minibus: minibus
+                                    trolleybus: trolleybus
+                            litter:
+                                stretcher: stretcher
+                    excavation:
+                        pool:
+                            cistern:
+                                rain barrel: rain barrel
+                    surface:
+                        horizontal surface:
+                            platform:
+                                stage: stage
+                    commodity:
+                        drygoods:
+                            white goods:
+                                linen:
+                                    bath linen:
+                                        bath towel: bath towel
+                        consumer goods:
+                            durables:
+                                appliance:
+                                    dryer:
+                                        hand blower: hand blower
+                                    home appliance:
+                                        vacuum: vacuum
+                                        white goods:
+                                            dishwasher: dishwasher
+                                            refrigerator: refrigerator
+                                            washer: washer
+                                        kitchen appliance:
+                                            coffee maker:
+                                                espresso maker: espresso maker
+                                            microwave: microwave
+                                            oven:
+                                                Dutch oven: Dutch oven
+                                                rotisserie: rotisserie
+                                            toaster: toaster
+                                            waffle iron: waffle iron
+                                        iron: iron
+                                        sewing machine: sewing machine
+                            clothing:
+                                attire:
+                                    hairpiece:
+                                        wig: wig
+                                    disguise:
+                                        mask: mask
+                                outerwear:
+                                    gown:
+                                        academic gown: academic gown
+                                        vestment: vestment
+                                protective garment:
+                                    apron: apron
+                                    knee pad: knee pad
+                                footwear:
+                                    hosiery:
+                                        stocking:
+                                            Christmas stocking: Christmas stocking
+                                        sock: sock
+                                        tights:
+                                            maillot: maillot
+                                uniform:
+                                    military uniform: military uniform
+                                accessory:
+                                    belt:
+                                        safety belt:
+                                            seat belt: seat belt
+                                nightwear:
+                                    pajama: pajama
+                                garment:
+                                    neckwear:
+                                        necktie:
+                                            bolo tie: bolo tie
+                                            Windsor tie: Windsor tie
+                                            bow tie: bow tie
+                                    swimsuit:
+                                        bikini: bikini
+                                        swimming trunks: swimming trunks
+                                        maillot: maillot
+                                    vest:
+                                        bulletproof vest: bulletproof vest
+                                    skirt:
+                                        miniskirt: miniskirt
+                                        sarong: sarong
+                                        hoopskirt: hoopskirt
+                                        overskirt: overskirt
+                                    suit: suit
+                                    trouser:
+                                        jean: jean
+                                    diaper: diaper
+                                    robe:
+                                        abaya: abaya
+                                        kimono: kimono
+                                    shirt:
+                                        jersey: jersey
+                                    sweater:
+                                        cardigan: cardigan
+                                        pullover:
+                                            sweatshirt: sweatshirt
+                                    overgarment:
+                                        cloak:
+                                            poncho: poncho
+                                        coat:
+                                            lab coat: lab coat
+                                            raincoat:
+                                                trench coat: trench coat
+                                            fur coat: fur coat
+                                    scarf:
+                                        stole: stole
+                                        feather boa: feather boa
+                                    undergarment:
+                                        brassiere: brassiere
+                                woman's clothing:
+                                    brassiere: brassiere
+                                    dress:
+                                        gown: gown
+                                apparel:
+                                    workwear:
+                                        jean: jean
+                                handwear:
+                                    glove:
+                                        mitten: mitten
+                                headdress:
+                                    cap:
+                                        shower cap: shower cap
+                                        bathing cap: bathing cap
+                                        mortarboard: mortarboard
+                                    hat:
+                                        bonnet: bonnet
+                                        sombrero: sombrero
+                                        cowboy hat: cowboy hat
+                                        bearskin: bearskin
+                                    helmet:
+                                        crash helmet: crash helmet
+                                        football helmet: football helmet
+                    decoration:
+                        design:
+                            emblem:
+                                totem pole: totem pole
+                        adornment:
+                            jewelry:
+                                necklace: necklace
+                    padding:
+                        cushion:
+                            pillow: pillow
+                    covering:
+                        cloak: cloak
+                        wrapping:
+                            jacket:
+                                book jacket: book jacket
+                        clothing:
+                            attire:
+                                hairpiece:
+                                    wig: wig
+                                disguise:
+                                    mask: mask
+                            outerwear:
+                                gown:
+                                    academic gown: academic gown
+                                    vestment: vestment
+                            protective garment:
+                                apron: apron
+                                knee pad: knee pad
+                            footwear:
+                                hosiery:
+                                    stocking:
+                                        Christmas stocking: Christmas stocking
+                                    sock: sock
+                                    tights:
+                                        maillot: maillot
+                            uniform:
+                                military uniform: military uniform
+                            accessory:
+                                belt:
+                                    safety belt:
+                                        seat belt: seat belt
+                            nightwear:
+                                pajama: pajama
+                            garment:
+                                neckwear:
+                                    necktie:
+                                        bolo tie: bolo tie
+                                        Windsor tie: Windsor tie
+                                        bow tie: bow tie
+                                swimsuit:
+                                    bikini: bikini
+                                    swimming trunks: swimming trunks
+                                    maillot: maillot
+                                vest:
+                                    bulletproof vest: bulletproof vest
+                                skirt:
+                                    miniskirt: miniskirt
+                                    sarong: sarong
+                                    hoopskirt: hoopskirt
+                                    overskirt: overskirt
+                                suit: suit
+                                trouser:
+                                    jean: jean
+                                diaper: diaper
+                                robe:
+                                    abaya: abaya
+                                    kimono: kimono
+                                shirt:
+                                    jersey: jersey
+                                sweater:
+                                    cardigan: cardigan
+                                    pullover:
+                                        sweatshirt: sweatshirt
+                                overgarment:
+                                    cloak:
+                                        poncho: poncho
+                                    coat:
+                                        lab coat: lab coat
+                                        raincoat:
+                                            trench coat: trench coat
+                                        fur coat: fur coat
+                                scarf:
+                                    stole: stole
+                                    feather boa: feather boa
+                                undergarment:
+                                    brassiere: brassiere
+                            woman's clothing:
+                                brassiere: brassiere
+                                dress:
+                                    gown: gown
+                            apparel:
+                                workwear:
+                                    jean: jean
+                            handwear:
+                                glove:
+                                    mitten: mitten
+                            headdress:
+                                cap:
+                                    shower cap: shower cap
+                                    bathing cap: bathing cap
+                                    mortarboard: mortarboard
+                                hat:
+                                    bonnet: bonnet
+                                    sombrero: sombrero
+                                    cowboy hat: cowboy hat
+                                    bearskin: bearskin
+                                helmet:
+                                    crash helmet: crash helmet
+                                    football helmet: football helmet
+                        mask: mask
+                        footwear:
+                            shoe:
+                                sandal: sandal
+                                Loafer: Loafer
+                                running shoe: running shoe
+                            clog: clog
+                            boot:
+                                cowboy boot: cowboy boot
+                        cloth covering:
+                            dressing:
+                                bandage:
+                                    adhesive bandage:
+                                        Band Aid: Band Aid
+                            bedclothes:
+                                quilt: quilt
+                        screen:
+                            shoji: shoji
+                        floor cover:
+                            mat:
+                                doormat: doormat
+                            rug:
+                                prayer rug: prayer rug
+                        protective covering:
+                            blind:
+                                window blind:
+                                    window shade: window shade
+                                curtain:
+                                    theater curtain: theater curtain
+                                    shower curtain: shower curtain
+                            shade:
+                                lampshade: lampshade
+                            mask:
+                                gasmask: gasmask
+                                face mask:
+                                    ski mask: ski mask
+                            roof:
+                                thatch: thatch
+                                tile roof: tile roof
+                                vault: vault
+                                dome: dome
+                            screen:
+                                mosquito net: mosquito net
+                                fire screen: fire screen
+                                window screen: window screen
+                            cap:
+                                lens cap: lens cap
+                                thimble: thimble
+                            shelter:
+                                birdhouse: birdhouse
+                                canopy:
+                                    umbrella: umbrella
+                                bell cote: bell cote
+                            armor:
+                                body armor:
+                                    chain mail: chain mail
+                                    cuirass: cuirass
+                                    bulletproof vest: bulletproof vest
+                                shield: shield
+                            shield:
+                                plate:
+                                    armor plate:
+                                        helmet:
+                                            pickelhaube: pickelhaube
+                                        breastplate: breastplate
+                            sheath:
+                                scabbard: scabbard
+                                holster: holster
+                            binder: binder
+                        top:
+                            cap:
+                                nipple: nipple
+                                bottlecap: bottlecap
+                            manhole cover: manhole cover
+                    fabric:
+                        velvet: velvet
+                        piece of cloth:
+                            dishrag: dishrag
+                            bib: bib
+                            handkerchief: handkerchief
+                            towel:
+                                bath towel: bath towel
+                                paper towel: paper towel
+                        wool: wool
+                    article:
+                        ware:
+                            woodenware:
+                                wooden spoon: wooden spoon
+                            tableware:
+                                crockery:
+                                    dish:
+                                        bowl:
+                                            mixing bowl: mixing bowl
+                                            soup bowl: soup bowl
+                                        Petri dish: Petri dish
+                                cutlery:
+                                    spoon:
+                                        wooden spoon: wooden spoon
+            part:
+                piece:
+                    piece of cloth:
+                        dishrag: dishrag
+                        bib: bib
+                        handkerchief: handkerchief
+                        towel:
+                            bath towel: bath towel
+                            paper towel: paper towel
+        causal agent:
+            person:
+                contestant:
+                    athlete:
+                        ballplayer: ballplayer
+                    player:
+                        ballplayer: ballplayer
+                peer:
+                    associate:
+                        participant:
+                            groom: groom
+                explorer:
+                    diver:
+                        scuba diver: scuba diver
+            agent:
+                drug:
+                    drug of abuse:
+                        alcohol:
+                            mixed drink:
+                                punch:
+                                    cup: cup
+                                    eggnog: eggnog
+                            wine:
+                                red wine: red wine
+                    medicine:
+                        powder:
+                            face powder: face powder
+        matter:
+            substance:
+                material:
+                    paper:
+                        tissue:
+                            toilet tissue: toilet tissue
+                fluid:
+                    liquid:
+                        beverage:
+                            alcohol:
+                                mixed drink:
+                                    punch:
+                                        cup: cup
+                                        eggnog: eggnog
+                                wine:
+                                    red wine: red wine
+                            coffee:
+                                espresso: espresso
+            solid:
+                food:
+                    produce:
+                        edible fruit:
+                            citrus:
+                                orange: orange
+                                lemon: lemon
+                            berry:
+                                strawberry: strawberry
+                            pineapple: pineapple
+                            pomegranate: pomegranate
+                            apple:
+                                eating apple:
+                                    Granny Smith: Granny Smith
+                            fig: fig
+                            banana: banana
+                            custard apple: custard apple
+                            jackfruit: jackfruit
+                        vegetable:
+                            artichoke: artichoke
+                            cucumber: cucumber
+                            cruciferous vegetable:
+                                cabbage:
+                                    head cabbage: head cabbage
+                                cauliflower: cauliflower
+                                broccoli: broccoli
+                            root vegetable:
+                                potato:
+                                    mashed potato: mashed potato
+                            squash:
+                                winter squash:
+                                    acorn squash: acorn squash
+                                    butternut squash: butternut squash
+                                summer squash:
+                                    spaghetti squash: spaghetti squash
+                                    zucchini: zucchini
+                            mushroom: mushroom
+                            cardoon: cardoon
+                            solanaceous vegetable:
+                                potato:
+                                    mashed potato: mashed potato
+                                pepper:
+                                    sweet pepper:
+                                        bell pepper: bell pepper
+                    baked goods:
+                        bread:
+                            bun:
+                                bagel: bagel
+                            cracker:
+                                pretzel: pretzel
+                            loaf of bread:
+                                French loaf: French loaf
+                                meat loaf: meat loaf

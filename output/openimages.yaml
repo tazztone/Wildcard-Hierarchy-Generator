@@ -1,0 +1,750 @@
+Entity:
+  misc:
+  - Coin
+  - Flag
+  - Light bulb
+  - Paper towel
+  - Pillow
+  - Fireplace
+  - Countertop
+  - Book
+  - Dog bed
+  - Cat furniture
+  - Lantern
+  - Vase
+  - Window blind
+  - Curtain
+  - Mirror
+  - Picture frame
+  - Candle
+  - Lamp
+  - Beehive
+  - Tent
+  - Parking meter
+  - Traffic light
+  - Billboard
+  - Fire hydrant
+  - Fountain
+  - Street light
+  - Jacuzzi
+  - Swimming pool
+  - Cassette deck
+  - Headphones
+  - Laptop
+  - Computer keyboard
+  - Printer
+  - Computer mouse
+  - Computer monitor
+  - Power plugs and sockets
+  - Light switch
+  - Television
+  - Tablet computer
+  - Microphone
+  - Ipod
+  - Remote control
+  - Bicycle wheel
+  - Door handle
+  - Door
+  - Window
+  - Stairs
+  - Porch
+  - Human eye
+  - Skull
+  - Human head
+  - Human face
+  - Human mouth
+  - Human ear
+  - Human nose
+  - Human hair
+  - Human hand
+  - Human foot
+  - Human arm
+  - Human leg
+  - Human beard
+  - Human body
+  - Coconut
+  Toy:
+    misc:
+    - Doll
+    - Balloon
+    - Dice
+    - Flying disc
+    - Kite
+    - Teddy bear
+  Home appliance:
+    misc:
+    - Washing machine
+    - Toaster
+    - Oven
+    - Blender
+    - Gas stove
+    - Mechanical fan
+    - Heater
+    - Kettle
+    - Hair dryer
+    - Refrigerator
+    - Wood-burning stove
+    - Humidifier
+    - Mixer
+    - Coffeemaker
+    - Microwave oven
+    - Dishwasher
+    - Sewing machine
+    - Hand dryer
+    - Ceiling fan
+  Plumbing fixture:
+    misc:
+    - Sink
+    - Bidet
+    - Shower
+    - Tap
+    - Bathtub
+    - Toilet
+  Office supplies:
+    misc:
+    - Scissors
+    - Poster
+    - Calculator
+    - Box
+    - Stapler
+    - Whiteboard
+    - Pencil sharpener
+    - Eraser
+    - Fax
+    - Adhesive tape
+    - Ring binder
+    - Pencil case
+    - Plastic bag
+    - Paper cutter
+    - Toilet paper
+    - Envelope
+    - Pen
+  Kitchenware:
+    Kitchen utensil:
+      misc:
+      - Chopsticks
+      - Ladle
+      - Spatula
+      - Can opener
+      - Cutting board
+      - Whisk
+      - Drinking straw
+      - Knife
+      - Bottle opener
+      - Measuring cup
+      - Pizza cutter
+      - Spoon
+      - Fork
+    Tableware:
+      misc:
+      - Chopsticks
+      - Teapot
+      - Mug
+      - Coffee cup
+      - Salt and pepper shakers
+      - Mixing bowl
+      - Saucer
+      - Cocktail shaker
+      - Bottle
+      - Bowl
+      - Plate
+      - Pitcher (Container)
+      - Kitchen knife
+      - Jug
+      - Platter
+      - Wine glass
+      - Spoon
+      - Fork
+      - Serving tray
+      - Cake stand
+    misc:
+    - Frying pan
+    - Wok
+    - Spice rack
+    Kitchen appliance:
+      misc:
+      - Oven
+      - Blender
+      - Slow cooker
+      - Food processor
+      - Refrigerator
+      - Waffle iron
+      - Mixer
+      - Coffeemaker
+      - Microwave oven
+      - Pressure cooker
+      - Dishwasher
+  Furniture:
+    misc:
+    - Chair
+    - Cabinetry
+    - Desk
+    - Wine rack
+    - Wardrobe
+    - Nightstand
+    - Bookcase
+    - Filing cabinet
+    - Chest of drawers
+    - Cupboard
+    - Bench
+    - Drawer
+    - Stool
+    - Shelf
+    - Wall clock
+    - Bathroom cabinet
+    - Closet
+    Couch:
+      misc:
+      - Sofa bed
+      - Loveseat
+    Bed:
+      misc:
+      - Infant bed
+      - Studio couch
+    Table:
+      misc:
+      - Coffee table
+      - Kitchen & dining room table
+  Clock:
+    misc:
+    - Alarm clock
+    - Digital clock
+    - Wall clock
+  Sculpture:
+    misc:
+    - Snowman
+    - Bust
+    - Bronze sculpture
+  Bathroom accessory:
+    misc:
+    - Towel
+    - Toilet paper
+    - Soap dispenser
+    - Facial tissue holder
+  Traffic sign:
+    misc:
+    - Stop sign
+  Building:
+    misc:
+    - Tree house
+    - Lighthouse
+    - Skyscraper
+    - Castle
+    - Tower
+    - House
+    - Office building
+    - Convenience store
+  Person:
+    misc:
+    - Man
+    - Woman
+    - Boy
+    - Girl
+  Food:
+    Fast food:
+      misc:
+      - Hot dog
+      - French fries
+    misc:
+    - Waffle
+    - Pancake
+    - Burrito
+    - Guacamole
+    - Egg (Food)
+    - Mushroom
+    - Pasta
+    - Pizza
+    - Taco
+    - Cooking spray
+    - Honeycomb
+    - Sushi
+    Snack:
+      misc:
+      - Pretzel
+      - Popcorn
+      - Cookie
+    Dessert:
+      misc:
+      - Muffin
+      - Cookie
+      - Ice cream
+      - Cake
+      - Candy
+    Fruit:
+      misc:
+      - Apple
+      - Grape
+      - Common fig
+      - Pear
+      - Strawberry
+      - Tomato
+      - Lemon
+      - Banana
+      - Orange
+      - Peach
+      - Mango
+      - Pineapple
+      - Grapefruit
+      - Pomegranate
+      - Watermelon
+      - Cantaloupe
+    Baked goods:
+      misc:
+      - Pretzel
+      - Bagel
+      - Muffin
+      - Cookie
+      - Bread
+      Pastry:
+        misc:
+        - Doughnut
+        - Croissant
+        - Tart
+    Seafood:
+      misc:
+      - Squid
+      Shellfish:
+        misc:
+        - Oyster
+        - Lobster
+        - Shrimp
+        - Crab
+    Vegetable:
+      misc:
+      - Cucumber
+      - Radish
+      - Artichoke
+      - Potato
+      - Tomato
+      - Garden Asparagus
+      - Cabbage
+      - Carrot
+      - Salad
+      - Broccoli
+      - Bell pepper
+      - Winter melon
+      Squash (Plant):
+        misc:
+        - Pumpkin
+        - Zucchini
+    Sandwich:
+      misc:
+      - Hamburger
+      - Submarine sandwich
+    Dairy Product:
+      misc:
+      - Cheese
+      - Milk
+  Plant:
+    misc:
+    - Houseplant
+    Tree:
+      misc:
+      - Christmas tree
+      - Palm tree
+      - Maple
+      - Willow
+    Flower:
+      misc:
+      - Lavender (Plant)
+      - Rose
+      - Common sunflower
+      - Lily
+  Vehicle:
+    Land vehicle:
+      misc:
+      - Ambulance
+      - Cart
+      - Bicycle
+      - Bus
+      - Snowmobile
+      - Golf cart
+      - Motorcycle
+      - Segway
+      - Tank
+      - Train
+      - Truck
+      - Unicycle
+      - Taxi
+      - Wheelchair
+      Car:
+        misc:
+        - Limousine
+        - Van
+    Watercraft:
+      Boat:
+        misc:
+        - Barge
+        - Gondola
+        - Canoe
+      misc:
+      - Jet ski
+      - Submarine
+    Aircraft:
+      misc:
+      - Helicopter
+      - Airplane
+      - Rocket
+  Clothing:
+    misc:
+    - Shorts
+    - Dress
+    - Swimwear
+    - Brassiere
+    - Tiara
+    - Shirt
+    - Coat
+    - Suit
+    - Scarf
+    - Jacket
+    - Swim cap
+    - Sports uniform
+    Hat:
+      misc:
+      - Cowboy hat
+      - Fedora
+      - Sombrero
+      - Sun hat
+    Skirt:
+      misc:
+      - Miniskirt
+    Fashion accessory:
+      Glove:
+        misc:
+        - Baseball glove
+      misc:
+      - Belt
+      - Sunglasses
+      - Tiara
+      - Necklace
+      - Sock
+      - Earrings
+      - Tie
+      - Goggles
+      - Scarf
+      - Handbag
+      - Watch
+      - Umbrella
+      - Glasses
+      - Crown
+      Hat:
+        misc:
+        - Cowboy hat
+        - Fedora
+        - Sombrero
+        - Sun hat
+    Trousers:
+      misc:
+      - Jeans
+    Footwear:
+      misc:
+      - Roller skates
+      - Boot
+      - High heels
+      - Sandal
+    Luggage and bags:
+      misc:
+      - Backpack
+      - Suitcase
+      - Briefcase
+      - Handbag
+    Helmet:
+      misc:
+      - Bicycle helmet
+      - Football helmet
+  Animal:
+    Bird:
+      misc:
+      - Magpie
+      - Woodpecker
+      - Blue jay
+      - Ostrich
+      - Penguin
+      - Raven
+      - Chicken
+      - Eagle
+      - Owl
+      - Duck
+      - Canary
+      - Goose
+      - Swan
+      - Falcon
+      - Parrot
+      - Sparrow
+      - Turkey
+    Invertebrate:
+      misc:
+      - Tick
+      - Centipede
+      - Scorpion
+      - Worm
+      - Spider
+      - Oyster
+      - Snail
+      Marine invertebrates:
+        misc:
+        - Starfish
+        - Isopod
+        - Squid
+        - Lobster
+        - Jellyfish
+        - Shrimp
+        - Crab
+      Insect:
+        misc:
+        - Bee
+        - Ant
+        - Dragonfly
+        Beetle:
+          misc:
+          - Ladybug
+        Moths and butterflies:
+          misc:
+          - Caterpillar
+          - Butterfly
+    Mammal:
+      misc:
+      - Bat (Animal)
+      - Camel
+      - Cattle
+      - Giraffe
+      - Rhinoceros
+      - Goat
+      - Horse
+      - Hamster
+      - Kangaroo
+      - Koala
+      - Mouse
+      - Pig
+      - Rabbit
+      - Squirrel
+      - Sheep
+      - Zebra
+      - Monkey
+      - Hippopotamus
+      - Deer
+      - Elephant
+      - Porcupine
+      - Hedgehog
+      - Bull
+      - Antelope
+      - Mule
+      - Skunk
+      - Alpaca
+      - Armadillo
+      Carnivore:
+        Bear:
+          misc:
+          - Brown bear
+          - Panda
+          - Polar bear
+          - Teddy bear
+        misc:
+        - Cat
+        - Fox
+        - Jaguar (Animal)
+        - Lynx
+        - Red panda
+        - Tiger
+        - Lion
+        - Dog
+        - Leopard
+        - Cheetah
+        - Otter
+        - Raccoon
+      Marine mammal:
+        misc:
+        - Dolphin
+        - Whale
+        - Sea lion
+        - Harbor seal
+    Reptile:
+      misc:
+      - Dinosaur
+      - Lizard
+      - Snake
+      - Crocodile
+      - Frog
+      Turtle:
+        misc:
+        - Tortoise
+        - Sea turtle
+    Fish:
+      misc:
+      - Goldfish
+      - Shark
+      - Rays and skates
+      - Seahorse
+    Shellfish:
+      misc:
+      - Oyster
+      - Lobster
+      - Shrimp
+      - Crab
+  Cosmetics:
+    misc:
+    - Face powder
+    - Hair spray
+    - Lipstick
+    - Perfume
+  Personal care:
+    misc:
+    - Toothbrush
+    - Sunglasses
+    - Goggles
+    - Crutch
+    - Cream
+    - Diaper
+    - Glasses
+    - Wheelchair
+  Medical equipment:
+    misc:
+    - Syringe
+    - Stretcher
+    - Stethoscope
+    - Band-aid
+  Musical instrument:
+    misc:
+    - Organ (Musical Instrument)
+    - Banjo
+    - Cello
+    - Drum
+    - French horn
+    - Guitar
+    - Harp
+    - Harpsichord
+    - Harmonica
+    - Musical keyboard
+    - Oboe
+    - Piano
+    - Saxophone
+    - Trombone
+    - Trumpet
+    - Violin
+    - Chime
+    - Flute
+    - Accordion
+    - Maracas
+  Sports equipment:
+    misc:
+    - Paddle
+    - Bicycle
+    - Surfboard
+    - Bow and arrow
+    - Hiking equipment
+    - Roller skates
+    - Flying disc
+    - Baseball bat
+    - Baseball glove
+    - Punching bag
+    - Golf ball
+    - Personal flotation device
+    - Scoreboard
+    - Snowboard
+    - Skateboard
+    - Ski
+    - Bowling equipment
+    - Dumbbell
+    - Stationary bicycle
+    - Treadmill
+    - Training bench
+    - Indoor rower
+    - Horizontal bar
+    - Parachute
+    - Balance beam
+    - Billiard table
+    Ball:
+      misc:
+      - Football
+      - Cricket ball
+      - Volleyball (Ball)
+      - Tennis ball
+      - Rugby ball
+    Racket:
+      misc:
+      - Tennis racket
+      - Table tennis racket
+    Helmet:
+      misc:
+      - Bicycle helmet
+      - Football helmet
+  Tool:
+    Container:
+      misc:
+      - Tin can
+      - Barrel
+      - Bottle
+      - Picnic basket
+      - Jug
+      - Waste container
+      - Beaker
+      - Flowerpot
+    misc:
+    - Ladder
+    - Toothbrush
+    - Screwdriver
+    - Drill (Tool)
+    - Chainsaw
+    - Wrench
+    - Flashlight
+    - Scissors
+    - Ratchet (Device)
+    - Hammer
+    - Scale
+    - Snowplow
+    - Nail (Construction)
+    - Tripod
+    - Torch
+    - Chisel
+    - Axe
+    - Camera
+    - Grinder
+    - Ruler
+    - Binoculars
+    Kitchen utensil:
+      misc:
+      - Chopsticks
+      - Ladle
+      - Spatula
+      - Can opener
+      - Cutting board
+      - Whisk
+      - Drinking straw
+      - Knife
+      - Bottle opener
+      - Measuring cup
+      - Pizza cutter
+      - Spoon
+      - Fork
+  Weapon:
+    misc:
+    - Bow and arrow
+    - Cannon
+    - Dagger
+    - Knife
+    - Rifle
+    - Shotgun
+    - Tank
+    - Axe
+    - Handgun
+    - Sword
+    - Missile
+    - Bomb
+  Telephone:
+    misc:
+    - Mobile phone
+    - Corded phone
+  Drink:
+    misc:
+    - Beer
+    - Cocktail
+    - Coffee
+    - Juice
+    - Tea
+    - Wine
+  Auto part:
+    misc:
+    - Vehicle registration plate
+    - Wheel
+    - Seat belt
+    - Tire
