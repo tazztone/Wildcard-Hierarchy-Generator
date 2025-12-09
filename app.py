@@ -58,27 +58,18 @@ def save_hierarchy(hierarchy: Any, output_path: str) -> None:
 def convert_to_wildcard_format(data: Any) -> Any:
     """
     Converts a nested dictionary hierarchy into a format suitable for wildcards.
-
-    Rules:
-    1. If a node has only leaf children, it becomes a List of strings.
-    2. If a node has mixed children (leaves and subtrees), it becomes a Dict.
-       - Subtrees remain as keys.
-       - Leaf children are wrapped as `leaf_name: [leaf_name]`.
     """
-    # Helper to check if a value represents a leaf in the input format
     def is_leaf_content(val):
-        if val == {}: return True  # Legacy empty dict leaf
-        if isinstance(val, str): return True  # Tree leaf string
+        if val == {}: return True
+        if isinstance(val, str): return True
         if val is None: return True
         return False
 
-    # Base case: if data itself is a leaf content (shouldn't happen for root usually, but for recursion)
     if is_leaf_content(data):
         return data
 
     if isinstance(data, list):
-        # Already a list (e.g. from COCO), preserve it
-        return data
+        return sorted(list(set(data))) # Deduplicate and sort
 
     if isinstance(data, dict):
         processed_children = {}
@@ -86,41 +77,29 @@ def convert_to_wildcard_format(data: Any) -> Any:
 
         for k, v in data.items():
             converted_v = convert_to_wildcard_format(v)
-
-            # Check what kind of child we have now
             if is_leaf_content(converted_v):
-                # It's a leaf. Use the key 'k' or the value 'converted_v' if it's a name string.
-                # In legacy, v={}, k=name. In tree, v=name.
-                # Let's standardize on the name.
                 name = k if (converted_v == {} or converted_v is None) else converted_v
                 processed_children[k] = name
                 child_is_leaf[k] = True
             elif isinstance(converted_v, list):
-                # It's a list of items (a category)
                 processed_children[k] = converted_v
                 child_is_leaf[k] = False
             elif isinstance(converted_v, dict):
-                # It's a subtree
                 processed_children[k] = converted_v
                 child_is_leaf[k] = False
             else:
-                # Fallback
                 processed_children[k] = converted_v
                 child_is_leaf[k] = False
 
-        # Decide if this node should be a List or Dict
         if not processed_children:
-            return {} # Empty dict
+            return {}
 
         if all(child_is_leaf.values()):
-            # All children are leaves -> Return List of names
-            return list(processed_children.values())
+            return sorted(list(processed_children.values()))
         else:
-            # Mixed or all subtrees -> Return Dict
             result = {}
             for k, val in processed_children.items():
                 if child_is_leaf[k]:
-                    # Wrap leaf in list
                     result[k] = [val]
                 else:
                     result[k] = val
@@ -128,42 +107,42 @@ def convert_to_wildcard_format(data: Any) -> Any:
 
     return data
 
-# --- Legacy ImageNet Logic (Bottom-Up from WNIDs) ---
+def extract_all_leaves(data: Any) -> List[str]:
+    """Helper to recursively extract all strings from a nested structure."""
+    leaves = []
+    if isinstance(data, list):
+        for item in data:
+            leaves.extend(extract_all_leaves(item))
+    elif isinstance(data, dict):
+        for v in data.values():
+            leaves.extend(extract_all_leaves(v))
+    elif isinstance(data, str):
+        leaves.append(data)
+    elif data is None:
+        pass
+    return leaves
 
-def get_synset_from_wnid(wnid: str) -> Optional[Any]:
-    try:
-        if len(wnid) < 2:
-            return None
-        pos = wnid[0]
-        offset_str = wnid[1:]
-        if not offset_str.isdigit():
-             return None
-        offset = int(offset_str)
-        return wn.synset_from_pos_and_offset(pos, offset)
-    except Exception as e:
-        # logger.error(f"Error finding synset for {wnid}: {e}") # Reduce spam for large lists
-        return None
+def flatten_hierarchy_post_process(data: Any, current_depth: int = 0, max_depth: int = 10) -> Any:
+    """
+    Generic post-processor to flatten hierarchy at max_depth.
+    When max_depth is reached, all descendants are collected into a flat list.
+    """
+    if current_depth >= max_depth:
+        return extract_all_leaves(data)
 
-def build_hierarchy_tree_legacy(wnids: List[str]) -> Dict[str, Any]:
-    tree: Dict[str, Any] = {}
-    for wnid in tqdm(wnids, desc="Building hierarchy", unit="id"):
-        synset = get_synset_from_wnid(wnid)
-        if not synset:
-            continue
-        paths = synset.hypernym_paths()
-        if not paths:
-            continue
-        primary_path = paths[0]
-        current_level = tree
-        for node in primary_path:
-            node_name = node.name().split('.')[0]
-            key = f"{node_name}"
-            if key not in current_level:
-                current_level[key] = {}
-            current_level = current_level[key]
-    return tree
+    if isinstance(data, dict):
+        new_dict = {}
+        for k, v in data.items():
+            new_dict[k] = flatten_hierarchy_post_process(v, current_depth + 1, max_depth)
+        return new_dict
 
-def load_wnids(inputs: List[str]) -> List[str]:
+    # Lists are usually leaves or categories, but if we have list of dicts (not expected in our format), handle it?
+    # In our format, lists are usually strings.
+    return data
+
+# --- Data Loaders ---
+
+def load_wnids_list(inputs: List[str]) -> List[str]:
     wnids_to_process = []
     for input_str in inputs:
         if os.path.isfile(input_str):
@@ -177,43 +156,12 @@ def load_wnids(inputs: List[str]) -> List[str]:
             wnids_to_process.append(input_str)
     return list(dict.fromkeys(wnids_to_process))
 
-def generate_imagenet_wnid_hierarchy(wnids: List[str]) -> Dict[str, Any]:
-    ensure_nltk_data()
-    if not wnids:
-        logger.warning("No WNIDs to process.")
-        return {}
-
-    logger.info(f"Processing {len(wnids)} IDs (Bottom-Up)...")
-    return build_hierarchy_tree_legacy(wnids)
-
-def handle_imagenet_wnid(args) -> None:
-    if not args.inputs:
-        logger.info("No input provided. Using sample IDs.")
-        wnids = ['n02084071', 'n02113799', 'n07753592'] # Simplified sample
-    else:
-        wnids = load_wnids(args.inputs)
-
-    hierarchy = generate_imagenet_wnid_hierarchy(wnids)
-    hierarchy = convert_to_wildcard_format(hierarchy)
-    save_hierarchy(hierarchy, args.output)
-
-def handle_imagenet_21k(args) -> None:
-    logger.info("Downloading and processing ImageNet-21K data...")
-    ids_path, _ = download_utils.ensure_imagenet21k_data()
-    logger.info(f"Loading WNIDs from {ids_path}...")
-    wnids = load_wnids([ids_path])
-    hierarchy = generate_imagenet_wnid_hierarchy(wnids)
-    hierarchy = convert_to_wildcard_format(hierarchy)
-    save_hierarchy(hierarchy, args.output)
-
-# --- ImageNet Tree Logic (Top-Down Recursive) ---
-
-def load_valid_wnids(json_path: str) -> Set[str]:
-    """Loads valid WNIDs from the ImageNet class index JSON."""
+def load_imagenet_1k_set() -> Set[str]:
+    logger.info("Ensuring ImageNet 1k list is available...")
+    list_path = download_utils.ensure_imagenet_list()
     try:
-        with open(json_path, 'r', encoding='utf-8') as f:
+        with open(list_path, 'r', encoding='utf-8') as f:
             data = json.load(f)
-        # format: {"0": ["n01440764", "tench"], ...}
         valid_wnids = set()
         for key, value in data.items():
             if isinstance(value, list) and len(value) >= 1:
@@ -223,128 +171,174 @@ def load_valid_wnids(json_path: str) -> Set[str]:
         logger.error(f"Failed to load valid WNIDs: {e}")
         return set()
 
-def build_hierarchy_snippet_style(synset, valid_wnids: Optional[Set[str]], depth=0, max_depth=3):
-    if depth > max_depth:
-        return []
+def load_imagenet_21k_set() -> Set[str]:
+    logger.info("Ensuring ImageNet 21k list is available...")
+    ids_path, _ = download_utils.ensure_imagenet21k_data()
+    wnids = set()
+    try:
+        with open(ids_path, 'r', encoding='utf-8') as f:
+            for line in f:
+                line = line.strip()
+                if line:
+                    wnids.add(line)
+    except Exception as e:
+        logger.error(f"Failed to load 21k WNIDs: {e}")
+    return wnids
 
+# --- ImageNet WNID (Bottom-Up) ---
+
+def get_synset_from_wnid(wnid: str) -> Optional[Any]:
+    try:
+        if len(wnid) < 2: return None
+        pos = wnid[0]
+        offset = int(wnid[1:])
+        return wn.synset_from_pos_and_offset(pos, offset)
+    except Exception:
+        return None
+
+def generate_imagenet_wnid_hierarchy(wnids: List[str], max_depth: int = 10) -> Dict[str, Any]:
+    ensure_nltk_data()
+    if not wnids: return {}
+
+    logger.info(f"Processing {len(wnids)} IDs (Bottom-Up)...")
+    tree: Dict[str, Any] = {}
+
+    for wnid in tqdm(wnids, desc="Building hierarchy", unit="id"):
+        synset = get_synset_from_wnid(wnid)
+        if not synset: continue
+        paths = synset.hypernym_paths()
+        if not paths: continue
+
+        # Use primary path
+        primary_path = paths[0]
+        current_level = tree
+        for node in primary_path:
+            node_name = node.name().split('.')[0] # e.g. 'dog' from 'dog.n.01'
+            if node_name not in current_level:
+                current_level[node_name] = {}
+            current_level = current_level[node_name]
+
+    # Flatten based on max_depth from root
+    return flatten_hierarchy_post_process(tree, 0, max_depth)
+
+# --- ImageNet Tree (Top-Down Recursive) ---
+
+def get_all_descendants(synset, valid_wnids: Optional[Set[str]]) -> List[str]:
+    """Fetches all descendants recursively, filtering if valid_wnids is present."""
+    descendants = set()
+    try:
+        # closure is a generator
+        iterator = synset.closure(lambda s: s.hyponyms())
+        for s in iterator:
+            wnid = f"{s.pos()}{s.offset():08d}"
+            name = s.lemmas()[0].name().replace('_', ' ')
+            if valid_wnids:
+                if wnid in valid_wnids:
+                    descendants.add(name)
+            else:
+                descendants.add(name)
+    except Exception as e:
+        logger.warning(f"Error traversing descendants of {synset}: {e}")
+
+    return sorted(list(descendants))
+
+def build_hierarchy_tree_recursive(synset, valid_wnids: Optional[Set[str]], depth, max_depth):
     name = synset.lemmas()[0].name().replace('_', ' ')
-    children = synset.hyponyms()
 
-    if not children:
-        # Leaf
-        if valid_wnids is not None:
-            wnid = f"{synset.pos()}{synset.offset():08d}"
-            if wnid not in valid_wnids:
-                return None # Filter out
-        return name
+    # Check if we should stop and flatten
+    if depth >= max_depth:
+        # Flatten: Get all descendants
+        leaves = get_all_descendants(synset, valid_wnids)
+        if leaves:
+             return leaves # Return list of strings
+        else:
+             # If no descendants, but I am a node... return myself?
+             # Or return empty? "Includes all words... just flattened".
+             # If I have no children, I am the leaf.
+             # Check if I am valid
+             if valid_wnids:
+                 wnid = f"{synset.pos()}{synset.offset():08d}"
+                 if wnid in valid_wnids:
+                     return [name] # Return self as a leaf item
+                 return []
+             return [name]
+
+    children = synset.hyponyms()
 
     child_nodes = {}
     has_valid_children = False
     
     for child in children:
         child_name = child.lemmas()[0].name().replace('_', ' ')
-        child_content = build_hierarchy_snippet_style(child, valid_wnids, depth + 1, max_depth)
+        child_content = build_hierarchy_tree_recursive(child, valid_wnids, depth + 1, max_depth)
 
         if child_content:
+            # If child_content is a list of strings (flattened leaves)
             child_nodes[child_name] = child_content
             has_valid_children = True
 
     if not has_valid_children:
-        if valid_wnids is None:
-             return name # Treat as leaf if max depth reached or no children
-        else:
-             # Check if I am valid myself
-             wnid = f"{synset.pos()}{synset.offset():08d}"
-             if wnid in valid_wnids:
-                 return name
-             return None
+        # I am a leaf relative to the traversal or filtration
+        if valid_wnids:
+            wnid = f"{synset.pos()}{synset.offset():08d}"
+            if wnid not in valid_wnids:
+                return None
+        return name # Return string as leaf indicator (legacy style used by convert_to_wildcard)
 
     return child_nodes
 
-def generate_imagenet_tree_hierarchy(root_str: str, depth: int, filter_enabled: bool) -> Dict[str, Any]:
+def generate_imagenet_tree_hierarchy(root_str: str, max_depth: int, filter_ids: Optional[Set[str]]) -> Dict[str, Any]:
     ensure_nltk_data()
     
-    valid_wnids = None
-    if filter_enabled:
-        logger.info("Ensuring ImageNet list is available...")
-        list_path = download_utils.ensure_imagenet_list()
-        valid_wnids = load_valid_wnids(list_path)
-        logger.info(f"Loaded {len(valid_wnids)} valid WNIDs for filtering.")
-    
+    if not root_str:
+        root_str = 'entity.n.01'
+
     try:
         root_synset = wn.synset(root_str)
     except Exception:
         logger.error(f"Could not find root synset: {root_str}")
         return {}
 
-    logger.info(f"Building hierarchy from {root_str} (Top-Down, max_depth={depth})...")
+    logger.info(f"Building hierarchy from {root_str} (Depth={max_depth})...")
 
-    # We wrap the result in a dict with the root name
     root_name = root_synset.lemmas()[0].name().replace('_', ' ')
-    content = build_hierarchy_snippet_style(root_synset, valid_wnids, max_depth=depth)
+    content = build_hierarchy_tree_recursive(root_synset, filter_ids, 0, max_depth)
 
     if content:
         return {root_name: content}
-    else:
-        logger.warning("Resulting hierarchy is empty (possibly due to aggressive filtering).")
-        return {}
-
-def handle_imagenet_tree(args) -> None:
-    hierarchy = generate_imagenet_tree_hierarchy(args.root, args.depth, args.filter)
-    hierarchy = convert_to_wildcard_format(hierarchy)
-    save_hierarchy(hierarchy, args.output)
-
+    return {}
 
 # --- COCO Logic ---
 
-def generate_coco_hierarchy() -> Dict[str, Any]:
-    # Use local category file if available to avoid large downloads
+def generate_coco_hierarchy(max_depth: int = 10) -> Dict[str, Any]:
     if os.path.exists("coco_categories.json"):
-        logger.info("Using local coco_categories.json...")
         with open("coco_categories.json", 'r', encoding='utf-8') as f:
             categories = json.load(f)
     else:
-        logger.info("Ensuring COCO data is available...")
         json_path = download_utils.ensure_coco_data()
-        logger.info(f"Loading {json_path}...")
         with open(json_path, 'r', encoding='utf-8') as f:
             data = json.load(f)
         categories = data['categories']
 
-    logger.info("Processing COCO categories...")
     hierarchy = {}
     for cat in tqdm(categories, desc="Processing COCO"):
         supercat = cat['supercategory']
         name = cat['name']
-
         if supercat not in hierarchy:
             hierarchy[supercat] = []
-
         hierarchy[supercat].append(name)
-    return hierarchy
 
-def handle_coco(args) -> None:
-    hierarchy = generate_coco_hierarchy()
-    hierarchy = convert_to_wildcard_format(hierarchy)
-    save_hierarchy(hierarchy, args.output)
-
+    return flatten_hierarchy_post_process(hierarchy, 0, max_depth)
 
 # --- Open Images Logic ---
 
 def parse_openimages_node(node, id_to_name):
     label_id = node.get('LabelName')
     name = id_to_name.get(label_id, label_id)
-
-    # Handle implicit root
     if label_id == '/m/0bl9f' and name == label_id:
         name = 'Entity'
 
-    # The JSON key is usually 'Subcategory', but let's be safe
-    sub_key = None
-    if 'Subcategory' in node:
-        sub_key = 'Subcategory'
-    elif 'Subcategories' in node:
-        sub_key = 'Subcategories'
+    sub_key = 'Subcategory' if 'Subcategory' in node else ('Subcategories' if 'Subcategories' in node else None)
 
     if sub_key:
         children = {}
@@ -353,79 +347,88 @@ def parse_openimages_node(node, id_to_name):
             if isinstance(child_res, dict):
                 children.update(child_res)
             else:
-                if 'misc' not in children:
-                    children['misc'] = []
+                if 'misc' not in children: children['misc'] = []
                 children['misc'].append(child_res)
         return {name: children}
     else:
         return name
 
-def generate_openimages_hierarchy() -> Dict[str, Any]:
-    logger.info("Ensuring Open Images data is available...")
+def generate_openimages_hierarchy(max_depth: int = 10) -> Dict[str, Any]:
     hierarchy_path, classes_path = download_utils.ensure_openimages_data()
 
-    logger.info("Loading class descriptions...")
     id_to_name = {}
     with open(classes_path, 'r', encoding='utf-8') as f:
         reader = csv.reader(f)
         for row in reader:
-            if len(row) >= 2:
-                id_to_name[row[0]] = row[1]
+            if len(row) >= 2: id_to_name[row[0]] = row[1]
 
-    logger.info("Loading hierarchy JSON...")
     with open(hierarchy_path, 'r', encoding='utf-8') as f:
         data = json.load(f)
 
-    logger.info("Building hierarchy...")
-    return parse_openimages_node(data, id_to_name)
-
-def handle_openimages(args) -> None:
-    hierarchy = generate_openimages_hierarchy()
-    hierarchy = convert_to_wildcard_format(hierarchy)
-    save_hierarchy(hierarchy, args.output)
+    full_hierarchy = parse_openimages_node(data, id_to_name)
+    return flatten_hierarchy_post_process(full_hierarchy, 0, max_depth)
 
 
-# --- Main ---
+# --- CLI Handlers ---
 
-def main() -> None:
-    parser = argparse.ArgumentParser(description="Wildcard Hierarchy Generator")
+def handle_imagenet_wnid(args):
+    if not args.inputs:
+        wnids = ['n02084071', 'n02113799', 'n07753592']
+    else:
+        wnids = load_wnids_list(args.inputs)
+    h = generate_imagenet_wnid_hierarchy(wnids, args.depth)
+    save_hierarchy(convert_to_wildcard_format(h), args.output)
+
+def handle_imagenet_tree(args):
+    filter_set = None
+    if args.filter == '1k':
+        filter_set = load_imagenet_1k_set()
+    elif args.filter == '21k':
+        filter_set = load_imagenet_21k_set()
+
+    h = generate_imagenet_tree_hierarchy(args.root, args.depth, filter_set)
+    save_hierarchy(convert_to_wildcard_format(h), args.output)
+
+def handle_coco(args):
+    h = generate_coco_hierarchy(args.depth)
+    save_hierarchy(convert_to_wildcard_format(h), args.output)
+
+def handle_openimages(args):
+    h = generate_openimages_hierarchy(args.depth)
+    save_hierarchy(convert_to_wildcard_format(h), args.output)
+
+def main():
+    parser = argparse.ArgumentParser()
     subparsers = parser.add_subparsers(dest='command', required=True)
 
-    # Legacy ImageNet (List of IDs -> Hierarchy)
-    p_wnid = subparsers.add_parser('imagenet-wnid', help='Build hierarchy from list of WNIDs (Bottom-Up)')
-    p_wnid.add_argument('inputs', nargs='*', help="WNIDs or file paths")
+    # ImageNet WNID
+    p_wnid = subparsers.add_parser('imagenet-wnid')
+    p_wnid.add_argument('inputs', nargs='*')
     p_wnid.add_argument('-o', '--output', default='imagenet_hierarchy.yaml')
-    p_wnid.add_argument('-v', '--verbose', action='store_true')
+    p_wnid.add_argument('--depth', type=int, default=10)
     p_wnid.set_defaults(func=handle_imagenet_wnid)
 
-    # ImageNet-21K
-    p_21k = subparsers.add_parser('imagenet-21k', help='Build hierarchy for ImageNet-21K')
-    p_21k.add_argument('-o', '--output', default='imagenet21k_hierarchy.yaml')
-    p_21k.set_defaults(func=handle_imagenet_21k)
-
-    # New ImageNet (Root -> Recursive Children)
-    p_tree = subparsers.add_parser('imagenet-tree', help='Build hierarchy recursively from a root node (Top-Down)')
-    p_tree.add_argument('--root', default='animal.n.01', help="Root synset (default: animal.n.01)")
-    p_tree.add_argument('--depth', type=int, default=3, help="Max recursion depth")
-    p_tree.add_argument('--filter', action='store_true', help="Filter using ImageNet 1k list")
+    # ImageNet Tree (Unified)
+    p_tree = subparsers.add_parser('imagenet-tree')
+    p_tree.add_argument('--root', default='entity.n.01')
+    p_tree.add_argument('--depth', type=int, default=3)
+    p_tree.add_argument('--filter', choices=['1k', '21k', 'none'], default='none')
     p_tree.add_argument('-o', '--output', default='wildcards_imagenet.yaml')
     p_tree.set_defaults(func=handle_imagenet_tree)
 
     # COCO
-    p_coco = subparsers.add_parser('coco', help='Build hierarchy from COCO annotations')
+    p_coco = subparsers.add_parser('coco')
     p_coco.add_argument('-o', '--output', default='wildcards_coco.yaml')
+    p_coco.add_argument('--depth', type=int, default=10)
     p_coco.set_defaults(func=handle_coco)
 
     # Open Images
-    p_oi = subparsers.add_parser('openimages', help='Build hierarchy from Open Images data')
+    p_oi = subparsers.add_parser('openimages')
     p_oi.add_argument('-o', '--output', default='wildcards_openimages.yaml')
+    p_oi.add_argument('--depth', type=int, default=10)
     p_oi.set_defaults(func=handle_openimages)
 
     args = parser.parse_args()
-
-    if hasattr(args, 'verbose') and args.verbose:
-        logger.setLevel(logging.DEBUG)
-
     args.func(args)
 
 if __name__ == "__main__":

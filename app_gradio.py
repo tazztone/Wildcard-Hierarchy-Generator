@@ -9,11 +9,8 @@ import yaml
 import os
 import logging
 
-# Set up logging to capture output if needed, but app.py logs to stderr/stdout
+# Set up logging
 logger = logging.getLogger("gui")
-
-def format_yaml(data):
-    return yaml.dump(data, sort_keys=False, default_flow_style=False, indent=4)
 
 def format_yaml_preview(data, max_lines=1000):
     yaml_str = yaml.dump(data, sort_keys=False, default_flow_style=False, indent=4)
@@ -28,63 +25,6 @@ def safe_execution(func, *args, **kwargs):
     except Exception as e:
         return f"Error: {str(e)}"
 
-# --- Tab Functions ---
-
-def preview_imagenet_wnid(wnid_text):
-    if not wnid_text.strip():
-        return "Please enter at least one WNID.", "No input."
-    wnids = [line.strip() for line in wnid_text.split('\n') if line.strip()]
-    count = len(wnids)
-
-    try:
-        if count > 500:
-             h = app.generate_imagenet_wnid_hierarchy(wnids[:50])
-             msg = f"Ready to generate.\nTotal items: {count}\n(Preview showing first 50)"
-        else:
-             h = app.generate_imagenet_wnid_hierarchy(wnids)
-             msg = f"Ready to generate.\nTotal items: {count}"
-        h = app.convert_to_wildcard_format(h)
-        return format_yaml_preview(h), msg
-    except Exception as e:
-        return f"Error: {e}", "Error"
-
-def save_imagenet_wnid(wnid_text, output_path):
-    if not wnid_text.strip():
-        return "Please enter at least one WNID."
-    wnids = [line.strip() for line in wnid_text.split('\n') if line.strip()]
-
-    def _run():
-        h = app.generate_imagenet_wnid_hierarchy(wnids)
-        h = app.convert_to_wildcard_format(h)
-        app.save_hierarchy(h, output_path)
-        return f"Successfully saved to {output_path} ({len(wnids)} items processed)"
-
-    return safe_execution(_run)
-
-def preview_21k():
-    try:
-        ids_path, _ = app.download_utils.ensure_imagenet21k_data()
-        wnids = app.load_wnids([ids_path])
-        count = len(wnids)
-
-        # Sample
-        h = app.generate_imagenet_wnid_hierarchy(wnids[:50])
-        h = app.convert_to_wildcard_format(h)
-        msg = f"Ready to generate.\nTotal items: {count}\n(Preview showing first 50)"
-        return format_yaml_preview(h), msg
-    except Exception as e:
-        return f"Error: {e}", "Error"
-
-def save_21k(output_path):
-    def _run():
-        ids_path, _ = app.download_utils.ensure_imagenet21k_data()
-        wnids = app.load_wnids([ids_path])
-        h = app.generate_imagenet_wnid_hierarchy(wnids)
-        h = app.convert_to_wildcard_format(h)
-        app.save_hierarchy(h, output_path)
-        return f"Successfully saved to {output_path} ({len(wnids)} items processed)"
-    return safe_execution(_run)
-
 def load_file_content(file_path):
     if not file_path:
         return ""
@@ -94,192 +34,150 @@ def load_file_content(file_path):
     except Exception as e:
         return f"Error reading file: {e}"
 
-def preview_tree(root, depth, filter_en):
-    try:
-        h = app.generate_imagenet_tree_hierarchy(root, int(depth), filter_en)
-        h = app.convert_to_wildcard_format(h)
-        # Count nodes roughly
-        yaml_str = format_yaml_preview(h)
-        lines = yaml_str.count('\n') + 1
-        msg = f"Ready to generate.\nGenerated ~{lines} lines of YAML."
-        return yaml_str, msg
-    except Exception as e:
-        return f"Error: {e}", "Error"
+# --- logic wrapper ---
 
-def save_tree(root, depth, filter_en, path):
-    def _run():
-        h = app.generate_imagenet_tree_hierarchy(root, int(depth), filter_en)
-        h = app.convert_to_wildcard_format(h)
-        app.save_hierarchy(h, path)
-        return f"Successfully saved to {path}"
-    return safe_execution(_run)
+def get_imagenet_filter_set(filter_mode):
+    if filter_mode == "ImageNet 1k":
+        return app.load_imagenet_1k_set()
+    elif filter_mode == "ImageNet 21k":
+        return app.load_imagenet_21k_set()
+    return None
 
-def preview_coco():
+def generate_hierarchy(mode, wnid_text, root_synset, filter_mode, max_depth):
+    # Ensure depth is int
+    max_depth = int(max_depth)
+
+    if mode == "ImageNet (Custom List)":
+        if not wnid_text.strip():
+            raise ValueError("Please enter at least one WNID.")
+        wnids = [line.strip() for line in wnid_text.split('\n') if line.strip()]
+        # Determine if preview or full (we just generate full for preview usually, but limit for huge lists?)
+        # For simplicity, generate full then truncate in preview formatter.
+        h = app.generate_imagenet_wnid_hierarchy(wnids, max_depth)
+
+    elif mode == "ImageNet (Tree)":
+        filter_set = get_imagenet_filter_set(filter_mode)
+        h = app.generate_imagenet_tree_hierarchy(root_synset, max_depth, filter_set)
+
+    elif mode == "COCO":
+        h = app.generate_coco_hierarchy(max_depth)
+
+    elif mode == "Open Images":
+        h = app.generate_openimages_hierarchy(max_depth)
+
+    else:
+        raise ValueError(f"Unknown mode: {mode}")
+
+    return app.convert_to_wildcard_format(h)
+
+def on_preview(mode, wnid_text, root_synset, filter_mode, max_depth):
     try:
-        h = app.generate_coco_hierarchy()
-        h = app.convert_to_wildcard_format(h)
-        count = sum(len(v) for v in h.values())
-        msg = f"Ready to generate.\nFound {len(h)} supercategories and ~{count} categories."
+        h = generate_hierarchy(mode, wnid_text, root_synset, filter_mode, max_depth)
+
+        # Stats
+        if isinstance(h, list):
+            count = len(h)
+            msg = f"Generated List with {count} items."
+        else:
+            # Count leaves roughly
+            leaves = app.extract_all_leaves(h)
+            msg = f"Generated Hierarchy with ~{len(leaves)} leaf items."
+
         return format_yaml_preview(h), msg
     except Exception as e:
         return f"Error: {e}", "Error"
 
-def save_coco(path):
-    def _run():
-        h = app.generate_coco_hierarchy()
-        h = app.convert_to_wildcard_format(h)
-        app.save_hierarchy(h, path)
-        return f"Successfully saved to {path}"
-    return safe_execution(_run)
-
-def preview_oi():
+def on_save(mode, wnid_text, root_synset, filter_mode, max_depth, output_path):
     try:
-        h = app.generate_openimages_hierarchy()
-        h = app.convert_to_wildcard_format(h)
-        # Rough count of lines in YAML
-        yaml_str = format_yaml_preview(h)
-        msg = f"Ready to generate.\nOpen Images hierarchy loaded."
-        return yaml_str, msg
+        h = generate_hierarchy(mode, wnid_text, root_synset, filter_mode, max_depth)
+        app.save_hierarchy(h, output_path)
+        return f"Successfully saved to {output_path}"
     except Exception as e:
-        return f"Error: {e}", "Error"
-
-def save_oi(path):
-    def _run():
-        h = app.generate_openimages_hierarchy()
-        h = app.convert_to_wildcard_format(h)
-        app.save_hierarchy(h, path)
-        return f"Successfully saved to {path}"
-    return safe_execution(_run)
+        return f"Error: {e}"
 
 # --- GUI Construction ---
 
 with gr.Blocks(title="Hierarchy Generator") as demo:
     gr.Markdown("# Wildcard Hierarchy Generator")
-    gr.Markdown("Generate YAML hierarchies for ImageNet, COCO, and Open Images datasets. This tool creates nested dictionary structures representing the class hierarchies.")
+    gr.Markdown("Generate YAML hierarchies for ImageNet, COCO, and Open Images datasets.")
 
-    with gr.Tabs():
-        # --- ImageNet WNID Tab ---
-        with gr.TabItem("ImageNet WNID"):
-            gr.Markdown("### Bottom-Up Hierarchy from WNIDs")
-            gr.Markdown("**Dataset Info**: [ImageNet](http://www.image-net.org/) is a large-scale hierarchical image database organized according to the WordNet hierarchy. "
-                        "It is a cornerstone dataset for computer vision research.")
-            gr.Markdown("Provide a list of ImageNet WordNet IDs (WNIDs) to generate a hierarchy containing those classes and their ancestors. "
-                        "This is useful if you have a specific subset of ImageNet classes.")
+    # Main Selector
+    mode = gr.Radio(
+        ["ImageNet (Custom List)", "ImageNet (Tree)", "COCO", "Open Images"],
+        label="Dataset Mode",
+        value="ImageNet (Tree)"
+    )
 
-            with gr.Row():
-                with gr.Column(scale=2):
-                    wnid_input = gr.Textbox(
-                        lines=12,
-                        label="WNIDs (one per line)",
-                        placeholder="n02084071\nn02113799",
-                        info="Enter WNIDs here manually or upload a file."
-                    )
-                with gr.Column(scale=1):
-                    file_upload = gr.File(
-                        label="Upload WNID List (Text/File)",
-                        file_count="single",
-                        type="filepath"
-                    )
-                    gr.Markdown("*Uploading a file will replace the text in the box.*")
+    # Common Controls
+    with gr.Row():
+        max_depth = gr.Slider(minimum=1, maximum=10, value=3, step=1, label="Max Depth",
+                              info="Flatten hierarchy into list at this depth.")
+        output_path = gr.Textbox(value="wildcards_output.yaml", label="Output Filename")
 
-            output_path_wnid = gr.Textbox(value="imagenet_hierarchy.yaml", label="Output Filename")
+    # --- Mode Specific Groups ---
 
-            with gr.Row():
-                btn_preview_wnid = gr.Button("Preview YAML & Stats", variant="secondary")
-                btn_save_wnid = gr.Button("Generate & Save File", variant="primary")
+    # ImageNet Custom List
+    with gr.Group(visible=False) as grp_custom:
+        gr.Markdown("### ImageNet Custom List")
+        gr.Markdown("Provide a list of WNIDs to build a hierarchy bottom-up.")
+        with gr.Row():
+            with gr.Column(scale=2):
+                wnid_input = gr.Textbox(lines=10, label="WNIDs (one per line)", placeholder="n02084071...")
+            with gr.Column(scale=1):
+                file_upload = gr.File(label="Upload List", type="filepath")
 
-            out_preview_wnid = gr.Code(language="yaml", label="Preview")
-            out_status_wnid = gr.Textbox(label="Status", interactive=False)
+    # ImageNet Tree
+    with gr.Group(visible=True) as grp_tree:
+        gr.Markdown("### ImageNet Tree")
+        gr.Markdown("Recursive top-down generation.")
 
-            # Event handlers
-            file_upload.change(load_file_content, inputs=[file_upload], outputs=[wnid_input])
-            btn_preview_wnid.click(preview_imagenet_wnid, inputs=[wnid_input], outputs=[out_preview_wnid, out_status_wnid])
-            btn_save_wnid.click(save_imagenet_wnid, inputs=[wnid_input, output_path_wnid], outputs=[out_status_wnid])
+        filter_mode = gr.Radio(["All WordNet", "ImageNet 1k", "ImageNet 21k"],
+                               label="Filter Preset", value="All WordNet")
 
-        # --- ImageNet-21K Tab ---
-        with gr.TabItem("ImageNet-21K"):
-            gr.Markdown("### ImageNet-21K Hierarchy")
-            gr.Markdown("**Dataset Info**: ImageNet-21K is the full ImageNet dataset with around 21,000 categories.")
-            gr.Markdown("Generate the full hierarchy. This will download the ID list (~21k items) and process them. "
-                        "Depending on your connection and CPU, this might take a moment.")
+        with gr.Accordion("Advanced Settings", open=False):
+            root_input = gr.Textbox(value="entity.n.01", label="Root Synset",
+                                    info="Leave as entity.n.01 for full WordNet (filtered).")
 
-            output_path_21k = gr.Textbox(value="imagenet21k_hierarchy.yaml", label="Output Filename")
+    # COCO
+    with gr.Group(visible=False) as grp_coco:
+        gr.Markdown("### COCO")
+        gr.Markdown("Generates COCO hierarchy. Depth 1 = Flat List.")
 
-            with gr.Row():
-                btn_preview_21k = gr.Button("Preview YAML & Stats", variant="secondary")
-                btn_save_21k = gr.Button("Generate & Save File", variant="primary")
+    # Open Images
+    with gr.Group(visible=False) as grp_oi:
+        gr.Markdown("### Open Images")
+        gr.Markdown("Generates Open Images hierarchy.")
 
-            out_preview_21k = gr.Code(language="yaml", label="Preview")
-            out_status_21k = gr.Textbox(label="Status", interactive=False)
+    # Actions
+    with gr.Row():
+        btn_preview = gr.Button("Preview YAML", variant="secondary")
+        btn_save = gr.Button("Generate & Save", variant="primary")
 
-            btn_preview_21k.click(preview_21k, outputs=[out_preview_21k, out_status_21k])
-            btn_save_21k.click(save_21k, inputs=[output_path_21k], outputs=[out_status_21k])
+    # Output
+    out_preview = gr.Code(language="yaml", label="Preview")
+    out_status = gr.Textbox(label="Status", interactive=False)
 
-        # --- ImageNet Tree Tab ---
-        with gr.TabItem("ImageNet Tree"):
-            gr.Markdown("### Top-Down Recursive Hierarchy")
-            gr.Markdown("**Dataset Info**: [ImageNet](http://www.image-net.org/) is a large-scale hierarchical image database organized according to the WordNet hierarchy.")
-            gr.Markdown("Generate a hierarchy by starting from a root Synset and recursively finding children up to a certain depth. "
-                        "This is useful for exploring subtrees of WordNet.")
+    # --- Interaction Logic ---
 
-            with gr.Row():
-                root_input = gr.Textbox(value="animal.n.01", label="Root Synset", info="The WordNet synset ID to start from (e.g., animal.n.01).")
-                depth_input = gr.Slider(minimum=1, maximum=10, value=3, step=1, label="Max Depth", info="How deep to traverse the tree structure.")
+    def update_visibility(selected_mode):
+        return {
+            grp_custom: gr.update(visible=(selected_mode == "ImageNet (Custom List)")),
+            grp_tree: gr.update(visible=(selected_mode == "ImageNet (Tree)")),
+            grp_coco: gr.update(visible=(selected_mode == "COCO")),
+            grp_oi: gr.update(visible=(selected_mode == "Open Images"))
+        }
 
-            filter_input = gr.Checkbox(label="Filter using ImageNet 1k list", info="If checked, only synsets present in the ImageNet 1k dataset will be included.")
-            output_path_tree = gr.Textbox(value="wildcards_imagenet.yaml", label="Output Filename")
+    mode.change(update_visibility, inputs=[mode], outputs=[grp_custom, grp_tree, grp_coco, grp_oi])
 
-            with gr.Row():
-                btn_preview_tree = gr.Button("Preview YAML & Stats", variant="secondary")
-                btn_save_tree = gr.Button("Generate & Save File", variant="primary")
+    file_upload.change(load_file_content, inputs=[file_upload], outputs=[wnid_input])
 
-            out_preview_tree = gr.Code(language="yaml", label="Preview")
-            out_status_tree = gr.Textbox(label="Status", interactive=False)
+    btn_preview.click(on_preview,
+                      inputs=[mode, wnid_input, root_input, filter_mode, max_depth],
+                      outputs=[out_preview, out_status])
 
-            btn_preview_tree.click(preview_tree, inputs=[root_input, depth_input, filter_input], outputs=[out_preview_tree, out_status_tree])
-            btn_save_tree.click(save_tree, inputs=[root_input, depth_input, filter_input, output_path_tree], outputs=[out_status_tree])
-
-        # --- COCO Tab ---
-        with gr.TabItem("COCO"):
-            gr.Markdown("### COCO Dataset Hierarchy")
-            gr.Markdown("**Dataset Info**: [COCO (Common Objects in Context)](https://cocodataset.org/) is a rich dataset for object detection, segmentation, and captioning. "
-                        "It contains 80 object categories commonly found in everyday scenes.")
-            gr.Markdown("Generate hierarchy from COCO categories. It groups categories under their supercategories.")
-
-            gr.Markdown("**Note:** This may download the COCO annotations file if not present locally.")
-
-            output_path_coco = gr.Textbox(value="wildcards_coco.yaml", label="Output Filename")
-
-            with gr.Row():
-                btn_preview_coco = gr.Button("Preview YAML & Stats", variant="secondary")
-                btn_save_coco = gr.Button("Generate & Save File", variant="primary")
-
-            out_preview_coco = gr.Code(language="yaml", label="Preview")
-            out_status_coco = gr.Textbox(label="Status", interactive=False)
-
-            btn_preview_coco.click(preview_coco, outputs=[out_preview_coco, out_status_coco])
-            btn_save_coco.click(save_coco, inputs=[output_path_coco], outputs=[out_status_coco])
-
-        # --- Open Images Tab ---
-        with gr.TabItem("Open Images"):
-            gr.Markdown("### Open Images Dataset Hierarchy")
-            gr.Markdown("**Dataset Info**: [Open Images](https://storage.googleapis.com/openimages/web/index.html) is a dataset of ~9 million images annotated with image-level labels, bounding boxes, and more. "
-                        "This tool supports Open Images V7.")
-            gr.Markdown("Generate hierarchy from Open Images class descriptions and hierarchy JSON.")
-
-            gr.Markdown("**Note:** This will download the class descriptions and hierarchy JSON if not present.")
-
-            output_path_oi = gr.Textbox(value="wildcards_openimages.yaml", label="Output Filename")
-
-            with gr.Row():
-                btn_preview_oi = gr.Button("Preview YAML & Stats", variant="secondary")
-                btn_save_oi = gr.Button("Generate & Save File", variant="primary")
-
-            out_preview_oi = gr.Code(language="yaml", label="Preview")
-            out_status_oi = gr.Textbox(label="Status", interactive=False)
-
-            btn_preview_oi.click(preview_oi, outputs=[out_preview_oi, out_status_oi])
-            btn_save_oi.click(save_oi, inputs=[output_path_oi], outputs=[out_status_oi])
+    btn_save.click(on_save,
+                   inputs=[mode, wnid_input, root_input, filter_mode, max_depth, output_path],
+                   outputs=[out_status])
 
 if __name__ == "__main__":
     demo.launch(server_name="0.0.0.0", server_port=7860)

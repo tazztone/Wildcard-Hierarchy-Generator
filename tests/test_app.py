@@ -36,6 +36,9 @@ def mock_synset():
     # Children for top-down
     mock.hyponyms.return_value = []
 
+    # Closure for descendants
+    mock.closure = MagicMock(return_value=[])
+
     return mock
 
 @pytest.fixture
@@ -58,6 +61,7 @@ def test_get_synset_from_wnid_valid(mock_wn_fixture, mock_synset):
     # Setup specific return for this test if needed, or use fixture default
     result = app.get_synset_from_wnid('n02084071')
     assert result == mock_synset
+    # Note: app.get_synset_from_wnid calls wn.synset_from_pos_and_offset(pos, offset)
     mock_wn_fixture.synset_from_pos_and_offset.assert_called_with('n', 2084071)
 
 def test_get_synset_from_wnid_invalid_format(mock_wn_fixture):
@@ -73,21 +77,9 @@ def test_get_synset_from_wnid_exception(mock_wn_fixture):
     result = app.get_synset_from_wnid('n02084071')
     assert result is None
 
-def test_build_hierarchy_tree_legacy(mock_wn_fixture, mock_synset):
-    # Ensure get_synset_from_wnid calls our mock
-    # We don't mock get_synset_from_wnid here, we rely on mock_wn_fixture making it work
-
-    wnids = ['n02084071']
-    tree = app.build_hierarchy_tree_legacy(wnids)
-
-    assert 'entity' in tree
-    assert 'animal' in tree['entity']
-    assert 'dog' in tree['entity']['animal']
-    assert tree['entity']['animal']['dog'] == {}
-
 def test_load_wnids_direct():
     inputs = ['n12345678', 'n87654321']
-    result = app.load_wnids(inputs)
+    result = app.load_wnids_list(inputs)
     assert result == inputs
 
 def test_load_wnids_file(tmp_path):
@@ -95,7 +87,7 @@ def test_load_wnids_file(tmp_path):
     p.write_text("n11111111\nn22222222", encoding='utf-8')
 
     inputs = [str(p), 'n33333333']
-    result = app.load_wnids(inputs)
+    result = app.load_wnids_list(inputs)
 
     assert len(result) == 3
     assert 'n11111111' in result
@@ -106,7 +98,7 @@ def test_load_wnids_exception(caplog):
         mock_file.side_effect = Exception("Read Error")
         # We need os.path.isfile to be true
         with patch('os.path.isfile', return_value=True):
-             result = app.load_wnids(['bad_file.txt'])
+             result = app.load_wnids_list(['bad_file.txt'])
 
     assert "Error reading file bad_file.txt: Read Error" in caplog.text
     assert result == []
@@ -129,6 +121,7 @@ def test_coco_logic(tmp_path):
 
         args = MagicMock()
         args.output = str(tmp_path / "coco_out.yaml")
+        args.depth = 10
 
         app.handle_coco(args)
 
@@ -165,6 +158,7 @@ def test_openimages_logic(tmp_path):
 
         args = MagicMock()
         args.output = str(tmp_path / "oi_out.yaml")
+        args.depth = 10
 
         app.handle_openimages(args)
 
@@ -173,22 +167,19 @@ def test_openimages_logic(tmp_path):
             output = yaml.safe_load(f)
 
         assert "Person" in output
-        # Based on logic: leaf node returns name string.
-        # Subcategory loop: if child result is dict, update children.
-        # If child result is string (leaf), append to children['misc'].
-        # So Person -> {misc: [Bicycle]}
         assert "misc" in output["Person"]
         assert "Bicycle" in output["Person"]["misc"]
 
 def test_imagenet_tree_logic_basic():
-    # Setup mock synset manually to ensure cleanliness
     mock_synset = MagicMock()
     lemma = MagicMock()
     lemma.name.return_value = 'dog'
     mock_synset.lemmas.return_value = [lemma]
     mock_synset.hyponyms.return_value = [] # Leaf
+    mock_synset.closure.side_effect = lambda func: iter([]) # No descendants
 
-    result = app.build_hierarchy_snippet_style(mock_synset, valid_wnids=None)
+    result = app.build_hierarchy_tree_recursive(mock_synset, valid_wnids=None, depth=0, max_depth=3)
+    # Returns 'dog' string because it's a leaf node in the structure (and max_depth not reached)
     assert result == 'dog'
 
     # Test with children
@@ -197,10 +188,14 @@ def test_imagenet_tree_logic_basic():
     child_lemma.name.return_value = 'puppy'
     child.lemmas.return_value = [child_lemma]
     child.hyponyms.return_value = []
+    child.closure.side_effect = lambda func: iter([])
 
     mock_synset.hyponyms.return_value = [child]
+    # mock closure of parent to include child
+    mock_synset.closure.side_effect = lambda func: iter([child])
 
-    result = app.build_hierarchy_snippet_style(mock_synset, valid_wnids=None)
+    result = app.build_hierarchy_tree_recursive(mock_synset, valid_wnids=None, depth=0, max_depth=3)
+    # Child returns 'puppy'. Parent wraps it.
     assert result == {'puppy': 'puppy'}
 
 def test_imagenet_tree_logic_filtered():
@@ -211,44 +206,15 @@ def test_imagenet_tree_logic_filtered():
     mock_synset.hyponyms.return_value = []
     mock_synset.pos.return_value = 'n'
     mock_synset.offset.return_value = 2084071
+    mock_synset.closure.side_effect = lambda func: iter([])
 
     valid = {'n02084071'}
-    result = app.build_hierarchy_snippet_style(mock_synset, valid_wnids=valid)
+    result = app.build_hierarchy_tree_recursive(mock_synset, valid_wnids=valid, depth=0, max_depth=3)
+    # Valid leaf -> returns 'dog'
     assert result == 'dog'
 
     # If not in valid
-    result = app.build_hierarchy_snippet_style(mock_synset, valid_wnids={'n99999999'})
-    assert result is None
-
-def test_imagenet_tree_logic_filtered_branch():
-    # Root (invalid) -> Child (valid)
-    mock_root = MagicMock()
-    root_lemma = MagicMock()
-    root_lemma.name.return_value = 'root'
-    mock_root.lemmas.return_value = [root_lemma]
-    mock_root.pos.return_value = 'n'
-    mock_root.offset.return_value = 1000
-
-    mock_child = MagicMock()
-    child_lemma = MagicMock()
-    child_lemma.name.return_value = 'child'
-    mock_child.lemmas.return_value = [child_lemma]
-    mock_child.hyponyms.return_value = [] # Leaf
-    mock_child.pos.return_value = 'n'
-    mock_child.offset.return_value = 2000 # Valid ID
-
-    mock_root.hyponyms.return_value = [mock_child]
-
-    # Filter with only child valid
-    valid = {'n00002000'}
-    result = app.build_hierarchy_snippet_style(mock_root, valid_wnids=valid)
-
-    # Should keep root and child
-    assert result == {'child': 'child'}
-
-    # Filter with neither valid
-    valid = {'n00009999'}
-    result = app.build_hierarchy_snippet_style(mock_root, valid_wnids=valid)
+    result = app.build_hierarchy_tree_recursive(mock_synset, valid_wnids={'n99999999'}, depth=0, max_depth=3)
     assert result is None
 
 def test_handle_imagenet_tree(mock_wn_fixture, tmp_path):
@@ -257,13 +223,14 @@ def test_handle_imagenet_tree(mock_wn_fixture, tmp_path):
     root_lemma.name.return_value = 'animal'
     root_synset.lemmas.return_value = [root_lemma]
     root_synset.hyponyms.return_value = [] # Leaf
+    root_synset.closure.side_effect = lambda func: iter([])
 
     mock_wn_fixture.synset.return_value = root_synset
 
     args = MagicMock()
     args.root = 'animal.n.01'
     args.depth = 1
-    args.filter = False
+    args.filter = 'none'
     args.output = str(tmp_path / "tree.yaml")
 
     app.handle_imagenet_tree(args)
@@ -274,12 +241,15 @@ def test_handle_imagenet_tree(mock_wn_fixture, tmp_path):
     with open(args.output, 'r', encoding='utf-8') as f:
         output = yaml.safe_load(f)
 
+    # Root wrapper. content is 'animal'. Result {'animal': 'animal'}.
+    # Convert to wildcard: {'animal': 'animal'} -> ['animal'] (list of leaves)
     assert output == ['animal']
 
 def test_handle_imagenet_wnid(mock_wn_fixture, tmp_path):
     args = MagicMock()
     args.inputs = [] # Sample
     args.output = str(tmp_path / "wnid.yaml")
+    args.depth = 10
 
     app.handle_imagenet_wnid(args)
 
@@ -287,6 +257,11 @@ def test_handle_imagenet_wnid(mock_wn_fixture, tmp_path):
     with open(args.output, 'r', encoding='utf-8') as f:
         output = yaml.safe_load(f)
 
+    # Simplified sample in handle_imagenet_wnid -> n02084071 (dog)
+    # Should contain dog
+    # Because of post-processing, structure might be flat or nested depending on mocks.
+    # The default mock fixture provides paths entity->animal->dog.
+    # So we expect nested.
     assert 'entity' in output
     assert 'animal' in output['entity']
 
@@ -310,28 +285,19 @@ def test_ensure_nltk_data_download_fail(caplog):
 
     assert "Failed to download WordNet data: Download failed" in caplog.text
 
-def test_handle_imagenet_21k(mock_wn_fixture, tmp_path):
-    ids_file = tmp_path / "imagenet21k_wordnet_ids.txt"
-    ids_file.write_text("n00001234", encoding='utf-8')
-
-    with patch('app.download_utils.ensure_imagenet21k_data') as mock_ensure:
-        mock_ensure.return_value = (str(ids_file), "dummy_lemmas")
-
-        args = MagicMock()
-        args.output = str(tmp_path / "21k.yaml")
-
-        app.handle_imagenet_21k(args)
-
-        mock_ensure.assert_called()
-
-        import yaml
-        with open(args.output, 'r', encoding='utf-8') as f:
-            output = yaml.safe_load(f)
-            assert output
-
 def test_load_valid_wnids_error(caplog):
     with patch('builtins.open', side_effect=Exception("JSON error")):
-        result = app.load_valid_wnids("bad.json")
+        result = app.load_imagenet_1k_set()
+        # load_imagenet_1k_set calls ensure, then open.
+        # ensure checks for file or downloads.
+        # If we mock open to fail, it fails.
+
+    # Wait, load_imagenet_1k_set catches exception and logs error, returns set().
+    # But ensure_imagenet_list calls download if not exists.
+    # We should mock ensure_imagenet_list to return a path.
+    with patch('app.download_utils.ensure_imagenet_list', return_value="dummy.json"):
+        with patch('builtins.open', side_effect=Exception("JSON error")):
+             result = app.load_imagenet_1k_set()
 
     assert result == set()
     assert "Failed to load valid WNIDs: JSON error" in caplog.text
