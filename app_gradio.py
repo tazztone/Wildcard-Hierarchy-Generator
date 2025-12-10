@@ -201,6 +201,21 @@ def on_save(mode: str, strategy: str, wnid_text: str, root_synset: str,
         logger.error(error_msg)
         return error_msg
 
+def get_mode_from_index(index: int) -> str:
+    """Get mode name from tab index."""
+    modes = ["ImageNet", "COCO", "Open Images"]
+    return modes[index] if index < len(modes) else "Unknown"
+
+def on_tab_change(evt: gr.SelectData) -> Tuple[str, str]:
+    """Handle tab change to update mode and filename."""
+    mode_name = get_mode_from_index(evt.index)
+    logger.info(f"Tab changed to index {evt.index}, mode: {mode_name}")
+
+    # Auto-update filename
+    safe_name = mode_name.lower().replace(" ", "")
+    new_filename = f"wildcards_{safe_name}.yaml"
+    return mode_name, new_filename
+
 # ============================================================================
 # UI CONSTRUCTION
 # ============================================================================
@@ -319,6 +334,12 @@ def create_ui() -> gr.Blocks:
                                 label="Max Hypernym Depth",
                                 info="Limit the height of the tree above the leaves (0 = Full Path). Useful to create a 'forest' of categories."
                             )
+                            btn_clear_wnid = gr.Button("🗑️ Clear List", variant="secondary", size="sm")
+
+                            gr.Markdown(
+                                "Need WNIDs? [Search ImageNet](https://image-net.org/challenges/LSVRC/2012/browse-synsets) or [WordNet](http://wordnetweb.princeton.edu/perl/webwn).",
+                                line_breaks=True
+                            )
 
                 # Visibility Logic for Strategy
                 def update_visibility(strat):
@@ -370,7 +391,8 @@ def create_ui() -> gr.Blocks:
             label="🔔 Validation Status",
             value="✓ Ready to generate",
             interactive=False,
-            show_label=True
+            show_label=True,
+            show_copy_button=True
         )
 
         # Action Buttons
@@ -395,7 +417,8 @@ def create_ui() -> gr.Blocks:
             value="",
             interactive=False,
             show_label=True,
-            lines=2
+            lines=2,
+            show_copy_button=True
         )
 
         with gr.Accordion("📄 YAML Preview", open=True):
@@ -420,22 +443,18 @@ def create_ui() -> gr.Blocks:
         # EVENT HANDLERS
         # ====================================================================
 
-        def get_current_mode_name(tab_index):
-            modes = ["ImageNet", "COCO", "Open Images"]
-            return modes[tab_index] if tab_index < len(modes) else "Unknown"
-
-        # Tab change handler
-        def on_tab_change(evt: gr.SelectData):
-            mode_name = get_current_mode_name(evt.index)
-            logger.info(f"Tab changed to index {evt.index}, mode: {mode_name}")
-            return mode_name
-
-        tabs.select(on_tab_change, outputs=[current_mode])
+        tabs.select(on_tab_change, outputs=[current_mode, output_path])
 
         # File upload handler
         file_upload.change(
             load_file_content,
             inputs=[file_upload],
+            outputs=[im_wnid_input]
+        )
+
+        # Clear button handler
+        btn_clear_wnid.click(
+            lambda: "",
             outputs=[im_wnid_input]
         )
 
