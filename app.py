@@ -110,19 +110,13 @@ def convert_to_wildcard_format(data: Any) -> Any:
 
         if all(child_is_leaf.values()):
             return sorted(list(processed_children.values()))
-        elif not any(child_is_leaf.values()):
+        else:
             result = {}
             for k, val in processed_children.items():
-                result[k] = val
-            return result
-        else:
-            result = []
-            for k in sorted(processed_children.keys()):
-                val = processed_children[k]
                 if child_is_leaf[k]:
-                    result.append(val)
+                    result[k] = [val]
                 else:
-                    result.append({k: val})
+                    result[k] = val
             return result
 
     return data
