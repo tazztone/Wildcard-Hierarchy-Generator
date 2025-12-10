@@ -250,6 +250,7 @@ def test_handle_imagenet_wnid(mock_wn_fixture, tmp_path):
     args.inputs = [] # Sample
     args.output = str(tmp_path / "wnid.yaml")
     args.depth = 10
+    args.hypernym_depth = None
 
     app.handle_imagenet_wnid(args)
 

@@ -22,6 +22,13 @@ import download_utils
 
 DOWNLOADS_DIR = "downloads"
 
+# Categories to optionally blacklist
+ABSTRACT_CATEGORIES = {
+    'entity', 'abstraction', 'communication', 'measure',
+    'attribute', 'state', 'event', 'act', 'group',
+    'relation', 'possession', 'phenomenon'
+}
+
 # Configure logging
 logging.basicConfig(
     level=logging.INFO,
@@ -201,7 +208,7 @@ def get_synset_from_wnid(wnid: str) -> Optional[Any]:
     except Exception:
         return None
 
-def generate_imagenet_wnid_hierarchy(wnids: List[str], max_depth: int = 10) -> Dict[str, Any]:
+def generate_imagenet_wnid_hierarchy(wnids: List[str], max_depth: int = 10, max_hypernym_depth: Optional[int] = None) -> Dict[str, Any]:
     ensure_nltk_data()
     if not wnids: return {}
 
@@ -216,8 +223,16 @@ def generate_imagenet_wnid_hierarchy(wnids: List[str], max_depth: int = 10) -> D
 
         # Use primary path
         primary_path = paths[0]
+
+        # Apply hypernym depth limit if set
+        if max_hypernym_depth is not None and max_hypernym_depth > 0:
+            # Take last N items from path to limit height
+            path_to_use = primary_path[-max_hypernym_depth:]
+        else:
+            path_to_use = primary_path
+
         current_level = tree
-        for node in primary_path:
+        for node in path_to_use:
             node_name = node.name().split('.')[0] # e.g. 'dog' from 'dog.n.01'
             if node_name not in current_level:
                 current_level[node_name] = {}
@@ -227,6 +242,16 @@ def generate_imagenet_wnid_hierarchy(wnids: List[str], max_depth: int = 10) -> D
     return flatten_hierarchy_post_process(tree, 0, max_depth)
 
 # --- ImageNet Tree (Top-Down Recursive) ---
+
+def get_primary_synset(word: str) -> Optional[Any]:
+    """Get only the first (most common) synset"""
+    try:
+        synsets = wn.synsets(word.replace(' ', '_'))
+        if synsets:
+            return synsets[0]  # Only use first/primary meaning
+    except Exception:
+        pass
+    return None
 
 def get_all_descendants(synset, valid_wnids: Optional[Set[str]]) -> List[str]:
     """Fetches all descendants recursively, filtering if valid_wnids is present."""
@@ -247,8 +272,21 @@ def get_all_descendants(synset, valid_wnids: Optional[Set[str]]) -> List[str]:
 
     return sorted(list(descendants))
 
-def build_hierarchy_tree_recursive(synset, valid_wnids: Optional[Set[str]], depth, max_depth):
+def build_hierarchy_tree_recursive(synset, valid_wnids: Optional[Set[str]], depth, max_depth, strict_filter: bool = True, blacklist: bool = False):
     name = synset.lemmas()[0].name().replace('_', ' ')
+
+    # 1. Blacklist check (Solution 3)
+    if blacklist:
+        node_lemma = synset.name().split('.')[0]
+        if node_lemma in ABSTRACT_CATEGORIES:
+            return None
+
+    # 2. Strict Primary Synset Check (Solution 1)
+    if strict_filter:
+        primary = get_primary_synset(name)
+        if primary and primary != synset:
+             # This synset is not the primary meaning for its name. Skip it.
+             return None
 
     # Check if we should stop and flatten
     if depth >= max_depth:
@@ -275,7 +313,7 @@ def build_hierarchy_tree_recursive(synset, valid_wnids: Optional[Set[str]], dept
     
     for child in children:
         child_name = child.lemmas()[0].name().replace('_', ' ')
-        child_content = build_hierarchy_tree_recursive(child, valid_wnids, depth + 1, max_depth)
+        child_content = build_hierarchy_tree_recursive(child, valid_wnids, depth + 1, max_depth, strict_filter, blacklist)
 
         if child_content:
             # If child_content is a list of strings (flattened leaves)
@@ -292,7 +330,7 @@ def build_hierarchy_tree_recursive(synset, valid_wnids: Optional[Set[str]], dept
 
     return child_nodes
 
-def generate_imagenet_tree_hierarchy(root_str: str, max_depth: int, filter_ids: Optional[Set[str]]) -> Dict[str, Any]:
+def generate_imagenet_tree_hierarchy(root_str: str, max_depth: int, filter_ids: Optional[Set[str]], strict_filter: bool = True, blacklist: bool = False) -> Dict[str, Any]:
     ensure_nltk_data()
     
     if not root_str:
@@ -304,10 +342,13 @@ def generate_imagenet_tree_hierarchy(root_str: str, max_depth: int, filter_ids: 
         logger.error(f"Could not find root synset: {root_str}")
         return {}
 
-    logger.info(f"Building hierarchy from {root_str} (Depth={max_depth})...")
+    logger.info(f"Building hierarchy from {root_str} (Depth={max_depth}, Strict={strict_filter}, Blacklist={blacklist})...")
 
     root_name = root_synset.lemmas()[0].name().replace('_', ' ')
-    content = build_hierarchy_tree_recursive(root_synset, filter_ids, 0, max_depth)
+
+    # Check strict/blacklist for root itself? Usually root is explicit so we keep it.
+    # But pass flags to children.
+    content = build_hierarchy_tree_recursive(root_synset, filter_ids, 0, max_depth, strict_filter, blacklist)
 
     if content:
         return {root_name: content}
@@ -382,7 +423,7 @@ def handle_imagenet_wnid(args):
         wnids = ['n02084071', 'n02113799', 'n07753592']
     else:
         wnids = load_wnids_list(args.inputs)
-    h = generate_imagenet_wnid_hierarchy(wnids, args.depth)
+    h = generate_imagenet_wnid_hierarchy(wnids, args.depth, args.hypernym_depth)
     save_hierarchy(convert_to_wildcard_format(h), args.output)
 
 def handle_imagenet_tree(args):
@@ -392,7 +433,7 @@ def handle_imagenet_tree(args):
     elif args.filter == '21k':
         filter_set = load_imagenet_21k_set()
 
-    h = generate_imagenet_tree_hierarchy(args.root, args.depth, filter_set)
+    h = generate_imagenet_tree_hierarchy(args.root, args.depth, filter_set, not args.no_strict, args.blacklist)
     save_hierarchy(convert_to_wildcard_format(h), args.output)
 
 def handle_coco(args):
@@ -412,6 +453,7 @@ def main():
     p_wnid.add_argument('inputs', nargs='*')
     p_wnid.add_argument('-o', '--output', default='imagenet_hierarchy.yaml')
     p_wnid.add_argument('--depth', type=int, default=10)
+    p_wnid.add_argument('--hypernym-depth', type=int, default=None, help='Limit depth of hypernym path (Bottom-Up)')
     p_wnid.set_defaults(func=handle_imagenet_wnid)
 
     # ImageNet Tree (Unified)
@@ -419,6 +461,8 @@ def main():
     p_tree.add_argument('--root', default='entity.n.01')
     p_tree.add_argument('--depth', type=int, default=3)
     p_tree.add_argument('--filter', choices=['1k', '21k', 'none'], default='none')
+    p_tree.add_argument('--no-strict', action='store_true', help='Disable strict primary synset filtering')
+    p_tree.add_argument('--blacklist', action='store_true', help='Blacklist abstract categories')
     p_tree.add_argument('-o', '--output', default='wildcards_imagenet.yaml')
     p_tree.set_defaults(func=handle_imagenet_tree)
 
