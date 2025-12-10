@@ -128,9 +128,11 @@ def generate_hierarchy(mode: str, strategy: str, wnid_text: str, root_synset: st
 
 def on_preview(mode: str, strategy: str, wnid_text: str, root_synset: str,
                filter_mode: str, max_depth: int,
-               strict_filter: bool, blacklist: bool, hypernym_depth: int) -> Tuple[str, str]:
+               strict_filter: bool, blacklist: bool, hypernym_depth: int,
+               progress: gr.Progress = gr.Progress()) -> Tuple[str, str]:
     """Handle preview button click."""
     try:
+        progress(0, desc="Validating inputs...")
         # Normalize inputs
         wnid_text = (wnid_text or "").strip()
         root_synset = (root_synset or "entity.n.01").strip()
@@ -138,12 +140,16 @@ def on_preview(mode: str, strategy: str, wnid_text: str, root_synset: str,
         # Validate inputs
         is_valid, message = validate_inputs(mode, strategy, wnid_text, root_synset, max_depth)
         if not is_valid:
+            gr.Warning(message)
             return "# " + message, message
 
         # Generate hierarchy
+        progress(0.2, desc="Generating hierarchy...")
         logger.info(f"Generating preview for mode: {mode}, strategy: {strategy}")
         hierarchy = generate_hierarchy(mode, strategy, wnid_text, root_synset, filter_mode, max_depth,
                                      strict_filter, blacklist, hypernym_depth)
+
+        progress(0.7, desc="Formatting YAML...")
         wildcard_format = app.convert_to_wildcard_format(hierarchy)
 
         # Format output
@@ -156,18 +162,23 @@ def on_preview(mode: str, strategy: str, wnid_text: str, root_synset: str,
             status += f" (depth: {max_depth})"
 
         logger.info(f"Preview completed: {item_count} items")
+        progress(1.0, desc="Done!")
+        gr.Info(f"Preview generated: {item_count} items")
         return yaml_output, status
 
     except Exception as e:
         error_msg = f"❌ Generation failed: {str(e)}"
         logger.error(error_msg)
+        gr.Error(f"Generation failed: {str(e)}")
         return f"# Error\n# {str(e)}", error_msg
 
 def on_save(mode: str, strategy: str, wnid_text: str, root_synset: str,
             filter_mode: str, max_depth: int, output_path: str,
-            strict_filter: bool, blacklist: bool, hypernym_depth: int) -> str:
+            strict_filter: bool, blacklist: bool, hypernym_depth: int,
+            progress: gr.Progress = gr.Progress()) -> str:
     """Handle save button click."""
     try:
+        progress(0, desc="Validating inputs...")
         # Normalize inputs
         wnid_text = (wnid_text or "").strip()
         root_synset = (root_synset or "entity.n.01").strip()
@@ -175,6 +186,7 @@ def on_save(mode: str, strategy: str, wnid_text: str, root_synset: str,
         # Validate inputs
         is_valid, message = validate_inputs(mode, strategy, wnid_text, root_synset, max_depth)
         if not is_valid:
+            gr.Warning(message)
             return message
 
         # Validate output path
@@ -183,9 +195,12 @@ def on_save(mode: str, strategy: str, wnid_text: str, root_synset: str,
             output_path += '.yaml'
 
         # Generate and save
+        progress(0.2, desc="Generating hierarchy...")
         logger.info(f"Generating and saving to: {output_path}")
         hierarchy = generate_hierarchy(mode, strategy, wnid_text, root_synset, filter_mode, max_depth,
                                      strict_filter, blacklist, hypernym_depth)
+
+        progress(0.7, desc="Saving file...")
         wildcard_format = app.convert_to_wildcard_format(hierarchy)
         app.save_hierarchy(wildcard_format, output_path)
 
@@ -194,11 +209,14 @@ def on_save(mode: str, strategy: str, wnid_text: str, root_synset: str,
         status += f"📊 {item_count} items written"
 
         logger.info(f"Save completed: {output_path}")
+        progress(1.0, desc="Done!")
+        gr.Info(f"Saved to {output_path}")
         return status
 
     except Exception as e:
         error_msg = f"❌ Save failed: {str(e)}"
         logger.error(error_msg)
+        gr.Error(f"Save failed: {str(e)}")
         return error_msg
 
 def get_mode_from_index(index: int) -> str:
@@ -472,29 +490,31 @@ def create_ui() -> gr.Blocks:
                            im_strat, im_rt, im_filt, im_wnid, im_strict, im_blacklist, im_hyp_depth,
                            co_strat, co_rt, co_filt, co_wnid,
                            oi_strat, oi_rt, oi_filt, oi_wnid,
-                           depth):
+                           depth,
+                           progress=gr.Progress()):
 
             # Map inputs based on mode
             if mode == "ImageNet":
-                return on_preview(mode, im_strat, im_wnid, im_rt, im_filt, depth, im_strict, im_blacklist, im_hyp_depth)
+                return on_preview(mode, im_strat, im_wnid, im_rt, im_filt, depth, im_strict, im_blacklist, im_hyp_depth, progress)
             elif mode == "COCO":
                 # Pass dummies for strict/blacklist/hyp_depth
-                return on_preview(mode, co_strat, co_wnid, co_rt, co_filt, depth, True, False, 0)
+                return on_preview(mode, co_strat, co_wnid, co_rt, co_filt, depth, True, False, 0, progress)
             elif mode == "Open Images":
-                return on_preview(mode, oi_strat, oi_wnid, oi_rt, oi_filt, depth, True, False, 0)
+                return on_preview(mode, oi_strat, oi_wnid, oi_rt, oi_filt, depth, True, False, 0, progress)
             return "# Error", "Unknown mode"
 
         def dispatch_save(mode,
                           im_strat, im_rt, im_filt, im_wnid, im_strict, im_blacklist, im_hyp_depth,
                           co_strat, co_rt, co_filt, co_wnid,
                           oi_strat, oi_rt, oi_filt, oi_wnid,
-                          depth, path):
+                          depth, path,
+                          progress=gr.Progress()):
              if mode == "ImageNet":
-                 return on_save(mode, im_strat, im_wnid, im_rt, im_filt, depth, path, im_strict, im_blacklist, im_hyp_depth)
+                 return on_save(mode, im_strat, im_wnid, im_rt, im_filt, depth, path, im_strict, im_blacklist, im_hyp_depth, progress)
              elif mode == "COCO":
-                 return on_save(mode, co_strat, co_wnid, co_rt, co_filt, depth, path, True, False, 0)
+                 return on_save(mode, co_strat, co_wnid, co_rt, co_filt, depth, path, True, False, 0, progress)
              elif mode == "Open Images":
-                 return on_save(mode, oi_strat, oi_wnid, oi_rt, oi_filt, depth, path, True, False, 0)
+                 return on_save(mode, oi_strat, oi_wnid, oi_rt, oi_filt, depth, path, True, False, 0, progress)
              return "Error: Unknown mode"
 
         all_inputs = [
