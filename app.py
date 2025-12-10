@@ -91,8 +91,13 @@ def convert_to_wildcard_format(data: Any) -> Any:
                 processed_children[k] = name
                 child_is_leaf[k] = True
             elif isinstance(converted_v, list):
-                processed_children[k] = converted_v
-                child_is_leaf[k] = False
+                # Check for redundancy: key == item[0] and len==1
+                if len(converted_v) == 1 and converted_v[0] == k:
+                    processed_children[k] = converted_v[0]
+                    child_is_leaf[k] = True
+                else:
+                    processed_children[k] = converted_v
+                    child_is_leaf[k] = False
             elif isinstance(converted_v, dict):
                 processed_children[k] = converted_v
                 child_is_leaf[k] = False
