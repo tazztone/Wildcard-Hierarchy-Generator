@@ -1,46 +1,78 @@
 # AGENTS.md
 
-This file provides context and guidelines for AI agents and human contributors working on this codebase.
+## Context for AI Agents and Contributors
 
-## Project Overview
+This file serves as the definitive guide for understanding the architecture, conventions, and operational procedures of the **Wildcard Hierarchy Generator** codebase.
 
-This project is a utility to generate a WordNet hierarchy from ImageNet WNIDs. It uses the NLTK library to traverse the WordNet graph and build a nested dictionary structure, which is then exported as YAML.
+### 1. Project Architecture
 
-## Coding Standards
+The project is structured around a core logic module (`app.py`), a GUI layer (`app_gradio.py`), and utility modules.
 
-*   **Python Version**: Python 3.8+.
-*   **Style**: Follow PEP 8 guidelines.
-*   **Type Hinting**: All functions must have type hints for arguments and return values.
-*   **Docstrings**: All functions and modules must have descriptive docstrings (Google style or standard Sphinx style).
-*   **Logging**: Use the `logging` module instead of `print` for application messages. `print` is acceptable only for CLI output specifically requested by flags (e.g., debug dumps) or user interaction if interactive features are added.
+#### Core Components
+-   **`app.py`**:
+    -   **Role**: Entry point for CLI and container for core logic.
+    -   **Key Functions**:
+        -   `generate_imagenet_wnid_hierarchy()`: Bottom-up construction from WNID list.
+        -   `generate_imagenet_tree_hierarchy()`: Top-down recursion from root synset.
+        -   `generate_coco_hierarchy()`: Flat structure generation.
+        -   `generate_openimages_hierarchy()`: Recursive parsing of JSON hierarchy.
+        -   `convert_to_wildcard_format()`: Critical post-processing step. Converts raw nested dicts into the specific YAML format required (lists for leaves, etc.).
+    -   **Data Flow**: `Load Data -> Process/Build Tree -> Post-process (Flatten/Format) -> Save YAML`.
 
-## Testing
+-   **`app_gradio.py`**:
+    -   **Role**: Gradio-based web interface.
+    -   **Pattern**: Uses `gr.State` to track active tabs and parameters. Implements a dispatch pattern (`dispatch_preview`, `dispatch_save`) to handle events from multiple tabs using shared buttons.
+    -   **Validation**: Real-time validation logic (`validate_inputs`).
 
-*   **Framework**: `pytest`.
-*   **Coverage**: Ensure new features are covered by unit tests.
-*   **Mocking**: Use `unittest.mock` to avoid external dependencies (like network calls to download NLTK data) during tests. Note that NLTK's lazy loading can sometimes make patching tricky; patching the object instance in the module (e.g., `app.wn`) is often more reliable than patching the import source.
+-   **`download_utils.py`**:
+    -   **Role**: Centralized handling of external data.
+    -   **Behavior**: Checks for local existence in `downloads/` before fetching. Uses `tqdm` for progress bars.
 
-## File Structure
+### 2. Operational Guidelines
 
-*   `app.py`: The entry point and main logic. Keep this file focused. If logic grows significantly, refactor into a `src/` package.
-*   `app_gradio.py`: The Gradio-based web interface. Ensure any changes here are compatible with the logic in `app.py`.
-*   `tests/`: Contains all test files. Naming convention: `test_<module_name>.py`.
-*   `requirements.txt`: Pin dependencies here.
+#### Hierarchy Generation Logic
+-   **Recursion & Depth**: Most generators use recursion. The `max_depth` parameter is strict. When recursion hits `max_depth`, the `flatten_hierarchy_post_process` function (or equivalent logic inside the generator) collapses all valid descendants into a flat list.
+-   **Leaf Nodes**: A "leaf" in the wildcard format is a string within a list. A non-leaf is a dictionary key.
+-   **Filtering**: ImageNet filtering works by passing a set of valid WNIDs (`valid_wnids`). During traversal, if a node's ID is not in the set, it (and its children) may be pruned, or it might be included as a path to a valid descendant depending on the logic.
 
-## Datasets
+#### File I/O & Encoding
+-   **Strict UTF-8**: Always use `encoding='utf-8'` for `open()`. This is critical for Windows compatibility.
+-   **Downloads Directory**: All external data must go to `downloads/`. Do not pollute the root directory.
 
-The project relies on external dataset structures:
-*   **ImageNet**: Accessed via NLTK WordNet.
-*   **COCO**: Uses `coco_categories.json` or downloads annotations.
-*   **Open Images**: Downloads class descriptions (V7) and hierarchy JSON if not present.
+#### Testing Strategy
+-   **Framework**: `pytest`.
+-   **Mocking**:
+    -   **Network**: Never make real network calls in tests. Mock `urllib.request` or the `download_utils` functions.
+    -   **NLTK**: NLTK lazy loaders are tricky. Mock `app.wn` or `nltk.corpus.wordnet` directly.
+    -   **UI**: UI logic is tested in `tests/test_gradio.py` by mocking the backend `generate_*` functions and testing the `on_preview`/`on_save` wrappers.
 
-## Common Tasks
+### 3. Coding Standards
 
-*   **Adding new features**: Ensure `app.py` handles arguments via `argparse`.
-*   **Updating dependencies**: Run `pip freeze` and update `requirements.txt` carefully, only including direct dependencies if possible, or all if locking is desired.
+-   **Style**: PEP 8.
+-   **Type Hints**: Mandatory for all function signatures.
+-   **Docstrings**: Required. Explanation of arguments and return values.
+-   **Logging**: Use `logging.getLogger(__name__)`. Do not use `print()` in library code.
 
-## Notes for Agents
+### 4. Memory & Optimization
 
-*   When modifying `app.py`, check if the NLTK data handling needs adjustment.
-*   The `ensure_nltk_data` function should run before any logic that requires WordNet.
-*   Be aware that `wnid` usually starts with 'n' followed by 8 digits (noun offset).
+-   **Large Datasets**: ImageNet-21K and Open Images are large.
+    -   Avoid loading full datasets into memory if possible.
+    -   Use generators/iterators where applicable (though current implementation mostly builds full dicts).
+    -   The GUI uses truncation (`format_yaml_preview`) to prevent browser crashes when displaying large outputs.
+
+### 5. Known Issues / Gotchas
+
+-   **NLTK Data**: The first run requires `wordnet` corpus. `ensure_nltk_data()` handles this, but it can fail if no internet.
+-   **Gradio State**: `gr.State` initialization must match the UI default values. Mismatches can cause "NoneType" errors in event handlers.
+-   **Wildcard Format**: The format is sensitive. `{"key": ["item"]}` is different from `{"key": {"item": {}}}`. Use `convert_to_wildcard_format` to standardize.
+
+### 6. Adding New Datasets
+
+1.  Add a loader in `download_utils.py`.
+2.  Implement a `generate_<dataset>_hierarchy` function in `app.py`.
+3.  Add a CLI parser in `app.py`.
+4.  Add a new Tab in `app_gradio.py` and update the dispatch functions.
+5.  Add tests.
+
+---
+**Note**: This file should be updated whenever significant architectural changes are made.

@@ -286,15 +286,8 @@ def test_ensure_nltk_data_download_fail(caplog):
     assert "Failed to download WordNet data: Download failed" in caplog.text
 
 def test_load_valid_wnids_error(caplog):
-    with patch('builtins.open', side_effect=Exception("JSON error")):
-        result = app.load_imagenet_1k_set()
-        # load_imagenet_1k_set calls ensure, then open.
-        # ensure checks for file or downloads.
-        # If we mock open to fail, it fails.
-
-    # Wait, load_imagenet_1k_set catches exception and logs error, returns set().
-    # But ensure_imagenet_list calls download if not exists.
-    # We should mock ensure_imagenet_list to return a path.
+    # load_imagenet_1k_set calls ensure, then open.
+    # We should mock ensure_imagenet_list to return a path so it doesn't try to download.
     with patch('app.download_utils.ensure_imagenet_list', return_value="dummy.json"):
         with patch('builtins.open', side_effect=Exception("JSON error")):
              result = app.load_imagenet_1k_set()
