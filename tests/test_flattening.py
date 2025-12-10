@@ -50,11 +50,11 @@ class TestFlattening(unittest.TestCase):
         child.closure = MagicMock(side_effect=lambda func: iter([grandchild]))
 
         # Max Depth 0
-        res = app.build_hierarchy_tree_recursive(root, None, 0, 0)
+        res = app.build_hierarchy_tree_recursive(root, None, 0, 0, strict_filter=False)
         self.assertEqual(sorted(res), ['child', 'grandchild'])
 
         # Max Depth 1
-        res = app.build_hierarchy_tree_recursive(root, None, 0, 1)
+        res = app.build_hierarchy_tree_recursive(root, None, 0, 1, strict_filter=False)
         self.assertEqual(res, {'child': ['grandchild']})
 
     def test_extract_all_leaves(self):

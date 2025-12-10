@@ -34,6 +34,10 @@ The project is structured around a core logic module (`app.py`), a GUI layer (`a
 -   **Recursion & Depth**: Most generators use recursion. The `max_depth` parameter is strict. When recursion hits `max_depth`, the `flatten_hierarchy_post_process` function (or equivalent logic inside the generator) collapses all valid descendants into a flat list.
 -   **Leaf Nodes**: A "leaf" in the wildcard format is a string within a list. A non-leaf is a dictionary key.
 -   **Filtering**: ImageNet filtering works by passing a set of valid WNIDs (`valid_wnids`). During traversal, if a node's ID is not in the set, it (and its children) may be pruned, or it might be included as a path to a valid descendant depending on the logic.
+-   **Semantic Filtering**:
+    -   **Primary Synset Filtering**: Enabled by default in recursive generation. Uses `get_primary_synset` to check if the current synset corresponds to the first (most common) meaning of its lemma name. If not, the node is pruned. This prevents "old man" (slang) from appearing under "communication".
+    -   **Blacklisting**: Optional. Prunes predefined abstract categories (e.g., `communication`, `entity`) to remove high-level noise.
+    -   **Hypernym Depth**: Optional for Bottom-Up generation. Limits the height of the hypernym path from the leaf, creating a forest of categories instead of a single deep tree rooted at `entity`.
 
 #### File I/O & Encoding
 -   **Strict UTF-8**: Always use `encoding='utf-8'` for `open()`. This is critical for Windows compatibility.

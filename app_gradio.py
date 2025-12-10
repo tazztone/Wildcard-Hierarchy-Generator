@@ -95,7 +95,9 @@ def get_imagenet_filter_set(filter_mode: str) -> Optional[set]:
     return None
 
 def generate_hierarchy(mode: str, strategy: str, wnid_text: str, root_synset: str,
-                      filter_mode: str, max_depth: int) -> Any:
+                      filter_mode: str, max_depth: int,
+                      strict_filter: bool = True, blacklist: bool = False,
+                      hypernym_depth: int = 0) -> Any:
     """Generate hierarchy based on mode and parameters."""
     max_depth = int(max_depth)
     wnid_text = (wnid_text or "").strip()
@@ -106,10 +108,11 @@ def generate_hierarchy(mode: str, strategy: str, wnid_text: str, root_synset: st
             wnids = [line.strip() for line in wnid_text.split('\n') if line.strip()]
             if not wnids:
                 raise ValueError("No valid WNIDs provided")
-            return app.generate_imagenet_wnid_hierarchy(wnids, max_depth)
+            hyp_depth = int(hypernym_depth) if hypernym_depth > 0 else None
+            return app.generate_imagenet_wnid_hierarchy(wnids, max_depth, hyp_depth)
         else:
             filter_set = get_imagenet_filter_set(filter_mode)
-            return app.generate_imagenet_tree_hierarchy(root_synset, max_depth, filter_set)
+            return app.generate_imagenet_tree_hierarchy(root_synset, max_depth, filter_set, strict_filter, blacklist)
 
     elif mode == "COCO":
         return app.generate_coco_hierarchy(max_depth)
@@ -124,7 +127,8 @@ def generate_hierarchy(mode: str, strategy: str, wnid_text: str, root_synset: st
 # ============================================================================
 
 def on_preview(mode: str, strategy: str, wnid_text: str, root_synset: str,
-               filter_mode: str, max_depth: int) -> Tuple[str, str]:
+               filter_mode: str, max_depth: int,
+               strict_filter: bool, blacklist: bool, hypernym_depth: int) -> Tuple[str, str]:
     """Handle preview button click."""
     try:
         # Normalize inputs
@@ -138,7 +142,8 @@ def on_preview(mode: str, strategy: str, wnid_text: str, root_synset: str,
 
         # Generate hierarchy
         logger.info(f"Generating preview for mode: {mode}, strategy: {strategy}")
-        hierarchy = generate_hierarchy(mode, strategy, wnid_text, root_synset, filter_mode, max_depth)
+        hierarchy = generate_hierarchy(mode, strategy, wnid_text, root_synset, filter_mode, max_depth,
+                                     strict_filter, blacklist, hypernym_depth)
         wildcard_format = app.convert_to_wildcard_format(hierarchy)
 
         # Format output
@@ -159,7 +164,8 @@ def on_preview(mode: str, strategy: str, wnid_text: str, root_synset: str,
         return f"# Error\n# {str(e)}", error_msg
 
 def on_save(mode: str, strategy: str, wnid_text: str, root_synset: str,
-            filter_mode: str, max_depth: int, output_path: str) -> str:
+            filter_mode: str, max_depth: int, output_path: str,
+            strict_filter: bool, blacklist: bool, hypernym_depth: int) -> str:
     """Handle save button click."""
     try:
         # Normalize inputs
@@ -178,7 +184,8 @@ def on_save(mode: str, strategy: str, wnid_text: str, root_synset: str,
 
         # Generate and save
         logger.info(f"Generating and saving to: {output_path}")
-        hierarchy = generate_hierarchy(mode, strategy, wnid_text, root_synset, filter_mode, max_depth)
+        hierarchy = generate_hierarchy(mode, strategy, wnid_text, root_synset, filter_mode, max_depth,
+                                     strict_filter, blacklist, hypernym_depth)
         wildcard_format = app.convert_to_wildcard_format(hierarchy)
         app.save_hierarchy(wildcard_format, output_path)
 
@@ -270,12 +277,24 @@ def create_ui() -> gr.Blocks:
                             label="🔍 Filter Preset",
                             info="Restrict results to a specific dataset version."
                         )
+                    with gr.Row():
+                        im_strict = gr.Checkbox(
+                            value=True,
+                            label="Strict Synset Filtering",
+                            info="Exclude secondary meanings (e.g. slang terms) that pollute the hierarchy."
+                        )
+                        im_blacklist = gr.Checkbox(
+                            value=False,
+                            label="Exclude Abstract Categories",
+                            info="Exclude high-level abstract categories like 'communication', 'measure', etc."
+                        )
 
                     with gr.Accordion("ℹ️ Help: Understanding Filters", open=False):
                         gr.Markdown("""
                         - **All WordNet**: Uses the full WordNet English lexical database (largest).
                         - **ImageNet 1k**: Restricts the tree to only include synsets found in the ImageNet-1K dataset.
                         - **ImageNet 21k**: Restricts the tree to only include synsets found in the ImageNet-21K dataset.
+                        - **Strict Synset Filtering**: Only includes nodes where the synset is the primary meaning of the word. Fixes issues like 'old man' (slang) appearing under 'communication'.
                         """)
 
                 # SECTION: Custom List
@@ -294,6 +313,11 @@ def create_ui() -> gr.Blocks:
                                 label="📁 Upload WNID List",
                                 file_types=[".txt", ".csv"],
                                 type="filepath"
+                            )
+                            im_hypernym_depth = gr.Slider(
+                                minimum=0, maximum=10, step=1, value=0,
+                                label="Max Hypernym Depth",
+                                info="Limit the height of the tree above the leaves (0 = Full Path). Useful to create a 'forest' of categories."
                             )
 
                 # Visibility Logic for Strategy
@@ -426,37 +450,38 @@ def create_ui() -> gr.Blocks:
 
         # Dispatch logic
         def dispatch_preview(mode,
-                           im_strat, im_rt, im_filt, im_wnid,
+                           im_strat, im_rt, im_filt, im_wnid, im_strict, im_blacklist, im_hyp_depth,
                            co_strat, co_rt, co_filt, co_wnid,
                            oi_strat, oi_rt, oi_filt, oi_wnid,
                            depth):
 
             # Map inputs based on mode
             if mode == "ImageNet":
-                return on_preview(mode, im_strat, im_wnid, im_rt, im_filt, depth)
+                return on_preview(mode, im_strat, im_wnid, im_rt, im_filt, depth, im_strict, im_blacklist, im_hyp_depth)
             elif mode == "COCO":
-                return on_preview(mode, co_strat, co_wnid, co_rt, co_filt, depth)
+                # Pass dummies for strict/blacklist/hyp_depth
+                return on_preview(mode, co_strat, co_wnid, co_rt, co_filt, depth, True, False, 0)
             elif mode == "Open Images":
-                return on_preview(mode, oi_strat, oi_wnid, oi_rt, oi_filt, depth)
+                return on_preview(mode, oi_strat, oi_wnid, oi_rt, oi_filt, depth, True, False, 0)
             return "# Error", "Unknown mode"
 
         def dispatch_save(mode,
-                          im_strat, im_rt, im_filt, im_wnid,
+                          im_strat, im_rt, im_filt, im_wnid, im_strict, im_blacklist, im_hyp_depth,
                           co_strat, co_rt, co_filt, co_wnid,
                           oi_strat, oi_rt, oi_filt, oi_wnid,
                           depth, path):
              if mode == "ImageNet":
-                 return on_save(mode, im_strat, im_wnid, im_rt, im_filt, depth, path)
+                 return on_save(mode, im_strat, im_wnid, im_rt, im_filt, depth, path, im_strict, im_blacklist, im_hyp_depth)
              elif mode == "COCO":
-                 return on_save(mode, co_strat, co_wnid, co_rt, co_filt, depth, path)
+                 return on_save(mode, co_strat, co_wnid, co_rt, co_filt, depth, path, True, False, 0)
              elif mode == "Open Images":
-                 return on_save(mode, oi_strat, oi_wnid, oi_rt, oi_filt, depth, path)
+                 return on_save(mode, oi_strat, oi_wnid, oi_rt, oi_filt, depth, path, True, False, 0)
              return "Error: Unknown mode"
 
         all_inputs = [
             current_mode,
             # ImageNet
-            im_strategy, im_root, im_filter, im_wnid_input,
+            im_strategy, im_root, im_filter, im_wnid_input, im_strict, im_blacklist, im_hypernym_depth,
             # COCO (dummies)
             strat_coco, root_coco, filter_coco, wnid_coco,
             # OI (dummies)
