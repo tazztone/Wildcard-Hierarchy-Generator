@@ -50,3 +50,15 @@ def test_on_preview_defaults_empty_root():
         # Check that it called with entity.n.01
         mock_gen.assert_called_with("ImageNet", "Recursive (from Root)", "", "entity.n.01", "All WordNet", 3, True, False, 0)
         assert "Preview generated successfully" in stats
+
+def test_on_tab_change():
+    evt = MagicMock()
+    evt.index = 1 # COCO
+    mode, filename = app_gradio.on_tab_change(evt)
+    assert mode == "COCO"
+    assert filename == "wildcards_coco.yaml"
+
+    evt.index = 2 # Open Images
+    mode, filename = app_gradio.on_tab_change(evt)
+    assert mode == "Open Images"
+    assert filename == "wildcards_openimages.yaml"
