@@ -1,3 +1,4 @@
+
 import pytest
 import app
 
@@ -28,16 +29,24 @@ def test_convert_legacy_mixed():
             }
         }
     }
-    # Expected:
+    # Old Expected:
     # root:
     #   leaf1: [leaf1]
     #   sub: [leaf2]
+    # New Expected: Mixed List
+    # root:
+    #   - leaf1
+    #   - sub:
+    #       - leaf2
 
     result = app.convert_to_wildcard_format(data)
-    assert 'leaf1' in result['root']
-    assert result['root']['leaf1'] == ['leaf1'] # Wrapped leaf
-    assert 'sub' in result['root']
-    assert result['root']['sub'] == ['leaf2']
+    root = result['root']
+    assert isinstance(root, list)
+    assert 'leaf1' in root
+    # Find the dict for sub
+    sub_node = next((item for item in root if isinstance(item, dict) and 'sub' in item), None)
+    assert sub_node is not None
+    assert sub_node['sub'] == ['leaf2']
 
 def test_convert_tree_structure():
     # Tree: {'root': {'leaf1': 'leaf1', 'leaf2': 'leaf2'}}
@@ -61,8 +70,12 @@ def test_convert_tree_mixed():
         }
     }
     result = app.convert_to_wildcard_format(data)
-    assert result['root']['leaf1'] == ['leaf1']
-    assert result['root']['sub'] == ['leaf2']
+    root = result['root']
+    assert isinstance(root, list)
+    assert 'leaf1' in root
+    sub_node = next((item for item in root if isinstance(item, dict) and 'sub' in item), None)
+    assert sub_node is not None
+    assert sub_node['sub'] == ['leaf2']
 
 def test_convert_coco_style():
     # {'super': ['c1', 'c2']} -> Preserved

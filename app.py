@@ -91,8 +91,13 @@ def convert_to_wildcard_format(data: Any) -> Any:
                 processed_children[k] = name
                 child_is_leaf[k] = True
             elif isinstance(converted_v, list):
-                processed_children[k] = converted_v
-                child_is_leaf[k] = False
+                # Check for redundancy: key == item[0] and len==1
+                if len(converted_v) == 1 and converted_v[0] == k:
+                    processed_children[k] = converted_v[0]
+                    child_is_leaf[k] = True
+                else:
+                    processed_children[k] = converted_v
+                    child_is_leaf[k] = False
             elif isinstance(converted_v, dict):
                 processed_children[k] = converted_v
                 child_is_leaf[k] = False
@@ -105,13 +110,19 @@ def convert_to_wildcard_format(data: Any) -> Any:
 
         if all(child_is_leaf.values()):
             return sorted(list(processed_children.values()))
-        else:
+        elif not any(child_is_leaf.values()):
             result = {}
             for k, val in processed_children.items():
+                result[k] = val
+            return result
+        else:
+            result = []
+            for k in sorted(processed_children.keys()):
+                val = processed_children[k]
                 if child_is_leaf[k]:
-                    result[k] = [val]
+                    result.append(val)
                 else:
-                    result[k] = val
+                    result.append({k: val})
             return result
 
     return data
