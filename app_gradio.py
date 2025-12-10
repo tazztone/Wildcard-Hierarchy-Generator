@@ -56,26 +56,26 @@ def count_hierarchy_items(hierarchy: Any) -> int:
 # VALIDATION FUNCTIONS
 # ============================================================================
 
-def validate_inputs(mode: str, wnid_text: str, root_synset: str,
+def validate_inputs(mode: str, strategy: str, wnid_text: str, root_synset: str,
                    max_depth: int) -> Tuple[bool, str]:
-    """Validate inputs based on selected mode."""
-    # Normalize inputs
+    """Validate inputs based on selected mode and strategy."""
+    # Note: Inputs should be normalized before calling this, but we double-check here
     wnid_text = (wnid_text or "").strip()
     root_synset = (root_synset or "entity.n.01").strip()
 
     # Mode-specific validation
-    if mode == "ImageNet (Custom List)":
-        if not wnid_text:
-            return False, "⚠️ Please enter at least one WNID"
-        wnids = [line.strip() for line in wnid_text.split('\n') if line.strip()]
-        if len(wnids) == 0:
-            return False, "⚠️ No valid WNIDs found"
-        return True, f"✓ {len(wnids)} WNIDs ready to process"
-
-    elif mode == "ImageNet (Tree)":
-        if not root_synset:
-            return False, "⚠️ Root synset cannot be empty"
-        return True, f"✓ Ready to generate tree from '{root_synset}'"
+    if mode == "ImageNet":
+        if strategy == "Custom List":
+            if not wnid_text:
+                return False, "⚠️ Please enter at least one WNID in the custom list"
+            wnids = [line.strip() for line in wnid_text.split('\n') if line.strip()]
+            if len(wnids) == 0:
+                return False, "⚠️ No valid WNIDs found"
+            return True, f"✓ {len(wnids)} WNIDs ready to process"
+        else: # Recursive (Standard)
+            if not root_synset:
+                return False, "⚠️ Root synset cannot be empty"
+            return True, f"✓ Ready to generate tree from '{root_synset}'"
 
     elif mode in ["COCO", "Open Images"]:
         return True, f"✓ Ready to generate {mode} hierarchy"
@@ -94,22 +94,22 @@ def get_imagenet_filter_set(filter_mode: str) -> Optional[set]:
         return app.load_imagenet_21k_set()
     return None
 
-def generate_hierarchy(mode: str, wnid_text: str, root_synset: str,
+def generate_hierarchy(mode: str, strategy: str, wnid_text: str, root_synset: str,
                       filter_mode: str, max_depth: int) -> Any:
     """Generate hierarchy based on mode and parameters."""
     max_depth = int(max_depth)
     wnid_text = (wnid_text or "").strip()
     root_synset = (root_synset or "entity.n.01").strip()
 
-    if mode == "ImageNet (Custom List)":
-        wnids = [line.strip() for line in wnid_text.split('\n') if line.strip()]
-        if not wnids:
-            raise ValueError("No valid WNIDs provided")
-        return app.generate_imagenet_wnid_hierarchy(wnids, max_depth)
-
-    elif mode == "ImageNet (Tree)":
-        filter_set = get_imagenet_filter_set(filter_mode)
-        return app.generate_imagenet_tree_hierarchy(root_synset, max_depth, filter_set)
+    if mode == "ImageNet":
+        if strategy == "Custom List":
+            wnids = [line.strip() for line in wnid_text.split('\n') if line.strip()]
+            if not wnids:
+                raise ValueError("No valid WNIDs provided")
+            return app.generate_imagenet_wnid_hierarchy(wnids, max_depth)
+        else:
+            filter_set = get_imagenet_filter_set(filter_mode)
+            return app.generate_imagenet_tree_hierarchy(root_synset, max_depth, filter_set)
 
     elif mode == "COCO":
         return app.generate_coco_hierarchy(max_depth)
@@ -123,18 +123,22 @@ def generate_hierarchy(mode: str, wnid_text: str, root_synset: str,
 # UI ACTION HANDLERS
 # ============================================================================
 
-def on_preview(mode: str, wnid_text: str, root_synset: str,
+def on_preview(mode: str, strategy: str, wnid_text: str, root_synset: str,
                filter_mode: str, max_depth: int) -> Tuple[str, str]:
     """Handle preview button click."""
     try:
+        # Normalize inputs
+        wnid_text = (wnid_text or "").strip()
+        root_synset = (root_synset or "entity.n.01").strip()
+
         # Validate inputs
-        is_valid, message = validate_inputs(mode, wnid_text, root_synset, max_depth)
+        is_valid, message = validate_inputs(mode, strategy, wnid_text, root_synset, max_depth)
         if not is_valid:
             return "# " + message, message
 
         # Generate hierarchy
-        logger.info(f"Generating preview for mode: {mode}")
-        hierarchy = generate_hierarchy(mode, wnid_text, root_synset, filter_mode, max_depth)
+        logger.info(f"Generating preview for mode: {mode}, strategy: {strategy}")
+        hierarchy = generate_hierarchy(mode, strategy, wnid_text, root_synset, filter_mode, max_depth)
         wildcard_format = app.convert_to_wildcard_format(hierarchy)
 
         # Format output
@@ -154,12 +158,16 @@ def on_preview(mode: str, wnid_text: str, root_synset: str,
         logger.error(error_msg)
         return f"# Error\n# {str(e)}", error_msg
 
-def on_save(mode: str, wnid_text: str, root_synset: str,
+def on_save(mode: str, strategy: str, wnid_text: str, root_synset: str,
             filter_mode: str, max_depth: int, output_path: str) -> str:
     """Handle save button click."""
     try:
+        # Normalize inputs
+        wnid_text = (wnid_text or "").strip()
+        root_synset = (root_synset or "entity.n.01").strip()
+
         # Validate inputs
-        is_valid, message = validate_inputs(mode, wnid_text, root_synset, max_depth)
+        is_valid, message = validate_inputs(mode, strategy, wnid_text, root_synset, max_depth)
         if not is_valid:
             return message
 
@@ -170,7 +178,7 @@ def on_save(mode: str, wnid_text: str, root_synset: str,
 
         # Generate and save
         logger.info(f"Generating and saving to: {output_path}")
-        hierarchy = generate_hierarchy(mode, wnid_text, root_synset, filter_mode, max_depth)
+        hierarchy = generate_hierarchy(mode, strategy, wnid_text, root_synset, filter_mode, max_depth)
         wildcard_format = app.convert_to_wildcard_format(hierarchy)
         app.save_hierarchy(wildcard_format, output_path)
 
@@ -186,18 +194,22 @@ def on_save(mode: str, wnid_text: str, root_synset: str,
         logger.error(error_msg)
         return error_msg
 
-def on_validate_input(mode: str, wnid_text: str, root_synset: str,
-                     max_depth: int) -> str:
-    """Real-time input validation feedback."""
-    is_valid, message = validate_inputs(mode, wnid_text, root_synset, max_depth)
-    return message
-
 # ============================================================================
 # UI CONSTRUCTION
 # ============================================================================
 
 def create_ui() -> gr.Blocks:
     """Create and configure the Gradio interface."""
+
+    common_roots = [
+        ("Everything (entity.n.01)", "entity.n.01"),
+        ("Physical Objects (physical_entity.n.01)", "physical_entity.n.01"),
+        ("Organisms (organism.n.01)", "organism.n.01"),
+        ("Animals (animal.n.01)", "animal.n.01"),
+        ("People (person.n.01)", "person.n.01"),
+        ("Artifacts/Objects (artifact.n.01)", "artifact.n.01"),
+        ("Abstract Concepts (abstraction.n.06)", "abstraction.n.06"),
+    ]
 
     with gr.Blocks(
         title="Wildcard Hierarchy Generator",
@@ -216,7 +228,7 @@ def create_ui() -> gr.Blocks:
             max_depth = gr.Slider(
                 minimum=1, maximum=10, value=3, step=1,
                 label="🎯 Max Depth",
-                info="Hierarchy depth (1 = flat list)"
+                info="How deep to traverse the tree. Reaching the limit flattens all children below it into a list."
             )
             output_path = gr.Textbox(
                 value="wildcards_output.yaml",
@@ -227,109 +239,107 @@ def create_ui() -> gr.Blocks:
         # Mode Selection with Tabs
         with gr.Tabs() as tabs:
 
-            # Tab 1: ImageNet Custom List
-            with gr.Tab("📋 ImageNet Custom List", id=0):
+            # Tab 1: ImageNet (Combined)
+            with gr.Tab("🖼️ ImageNet", id=0):
                 gr.Markdown("""
-                Build a hierarchy from specific WordNet IDs (WNIDs).
-                Enter WNIDs one per line, or upload a text file.
+                Generate a hierarchy from WordNet (ImageNet's source).
+                Choose between starting from a root category or providing a custom list of IDs.
                 """)
 
-                with gr.Row():
-                    with gr.Column(scale=3):
-                        wnid_input = gr.Textbox(
-                            lines=12,
-                            label="WNIDs (one per line)",
-                            placeholder="n02084071\\nn02121808\\nn01503061\\n...",
-                            info="Enter WordNet IDs to include in hierarchy"
+                # Strategy Selection
+                im_strategy = gr.Radio(
+                    choices=["Recursive (from Root)", "Custom List"],
+                    value="Recursive (from Root)",
+                    label="Generation Method",
+                    info="Choose 'Recursive' to build a tree from a category, or 'Custom List' to use specific IDs."
+                )
+
+                # SECTION: Recursive (Tree)
+                with gr.Group(visible=True) as group_recursive:
+                    with gr.Row():
+                        im_root = gr.Dropdown(
+                            choices=common_roots,
+                            value="entity.n.01",
+                            allow_custom_value=True,
+                            label="🌱 Root Synset",
+                            info="The starting category. Type a custom synset (e.g. 'dog.n.01') if needed."
                         )
-                    with gr.Column(scale=1):
-                        file_upload = gr.File(
-                            label="📁 Upload WNID List",
-                            file_types=[".txt", ".csv"],
-                            type="filepath"
+                        im_filter = gr.Radio(
+                            choices=["All WordNet", "ImageNet 1k", "ImageNet 21k"],
+                            value="All WordNet",
+                            label="🔍 Filter Preset",
+                            info="Restrict results to a specific dataset version."
                         )
+
+                    with gr.Accordion("ℹ️ Help: Understanding Filters", open=False):
                         gr.Markdown("""
-                        **Quick Start:**
-                        1. Paste WNIDs
-                        2. Set depth
-                        3. Click Preview
+                        - **All WordNet**: Uses the full WordNet English lexical database (largest).
+                        - **ImageNet 1k**: Restricts the tree to only include synsets found in the ImageNet-1K dataset.
+                        - **ImageNet 21k**: Restricts the tree to only include synsets found in the ImageNet-21K dataset.
                         """)
 
-                mode_custom = gr.State("ImageNet (Custom List)")
-                filter_custom = gr.State("All WordNet")
-                root_custom = gr.State("entity.n.01")
+                # SECTION: Custom List
+                with gr.Accordion("📋 Custom List Settings", open=False, visible=False) as group_custom:
+                    gr.Markdown("Build a hierarchy from specific WordNet IDs (WNIDs).")
+                    with gr.Row():
+                        with gr.Column(scale=3):
+                            im_wnid_input = gr.Textbox(
+                                lines=12,
+                                label="WNIDs (one per line)",
+                                placeholder="n02084071\nn02121808\nn01503061\n...",
+                                info="Enter WordNet IDs to include."
+                            )
+                        with gr.Column(scale=1):
+                            file_upload = gr.File(
+                                label="📁 Upload WNID List",
+                                file_types=[".txt", ".csv"],
+                                type="filepath"
+                            )
 
-            # Tab 2: ImageNet Tree
-            with gr.Tab("🌲 ImageNet Tree", id=1):
-                gr.Markdown("""
-                Generate a complete hierarchy starting from a root synset.
-                Use filters to limit to specific ImageNet versions.
-                """)
+                # Visibility Logic for Strategy
+                def update_visibility(strat):
+                    is_custom = (strat == "Custom List")
+                    return {
+                        group_recursive: gr.update(visible=not is_custom),
+                        group_custom: gr.update(visible=is_custom, open=True) # Auto-open when selected
+                    }
 
-                root_input = gr.Textbox(
-                    value="entity.n.01",
-                    label="🌱 Root Synset",
-                    info="Starting point for tree generation (default: entity.n.01)",
-                    placeholder="entity.n.01"
+                im_strategy.change(
+                    update_visibility,
+                    inputs=[im_strategy],
+                    outputs=[group_recursive, group_custom]
                 )
 
-                filter_mode = gr.Radio(
-                    choices=["All WordNet", "ImageNet 1k", "ImageNet 21k"],
-                    value="All WordNet",
-                    label="🔍 Filter Preset",
-                    info="Restrict to specific ImageNet version"
-                )
+                # State trackers
+                mode_imagenet = gr.State("ImageNet")
 
-                with gr.Accordion("ℹ️ About Filters", open=False):
-                    gr.Markdown("""
-                    - **All WordNet**: Full WordNet hierarchy (largest)
-                    - **ImageNet 1k**: Only synsets in ImageNet-1K dataset
-                    - **ImageNet 21k**: Only synsets in ImageNet-21K dataset
-                    """)
-
-                mode_tree = gr.State("ImageNet (Tree)")
-                wnid_tree = gr.State("")
-
-            # Tab 3: COCO
-            with gr.Tab("📷 COCO Dataset", id=2):
+            # Tab 2: COCO
+            with gr.Tab("📷 COCO Dataset", id=1):
                 gr.Markdown("""
                 Generate hierarchy for COCO (Common Objects in Context) dataset.
                 Depth 1 produces a flat list of 80 categories.
                 """)
-
-                gr.Markdown("""
-                **COCO Info:**
-                - 80 object categories
-                - Commonly used for object detection
-                - Depth 1 recommended (categories are already flat)
-                """)
-
                 mode_coco = gr.State("COCO")
+                # Dummy states for COCO dispatch alignment
                 wnid_coco = gr.State("")
                 root_coco = gr.State("entity.n.01")
                 filter_coco = gr.State("All WordNet")
+                strat_coco = gr.State("Default")
 
-            # Tab 4: Open Images
-            with gr.Tab("🖼️ Open Images", id=3):
+            # Tab 3: Open Images
+            with gr.Tab("🖼️ Open Images", id=2):
                 gr.Markdown("""
-                Generate hierarchy for Open Images dataset.
-                Contains 600+ object categories.
+                Generate hierarchy for Open Images dataset (600+ categories).
                 """)
-
-                gr.Markdown("""
-                **Open Images Info:**
-                - 600+ diverse categories
-                - Hierarchical structure
-                - Good for broad classification tasks
-                """)
-
                 mode_oi = gr.State("Open Images")
+                # Dummy states
                 wnid_oi = gr.State("")
                 root_oi = gr.State("entity.n.01")
                 filter_oi = gr.State("All WordNet")
+                strat_oi = gr.State("Default")
 
         # Current mode tracker
-        current_mode = gr.State("ImageNet (Custom List)")
+        current_mode = gr.State("ImageNet")
 
         # Validation Status
         validation_status = gr.Textbox(
@@ -375,33 +385,26 @@ def create_ui() -> gr.Blocks:
         with gr.Accordion("💡 Examples", open=False):
             gr.Examples(
                 examples=[
-                    [2, "ImageNet 1k"],  # Tree mode example
-                    [1, "All WordNet"],  # Flat list
-                    [3, "ImageNet 21k"], # Deep hierarchy
+                    ["Recursive (from Root)", "entity.n.01", "ImageNet 1k", 3],
+                    ["Recursive (from Root)", "animal.n.01", "All WordNet", 2],
                 ],
-                inputs=[max_depth, filter_mode],
-                label="Try these configurations for ImageNet Tree"
+                inputs=[im_strategy, im_root, im_filter, max_depth],
+                label="Try these ImageNet configurations"
             )
 
         # ====================================================================
         # EVENT HANDLERS
         # ====================================================================
 
-        def get_current_inputs(tab_index):
-            """Return appropriate inputs based on active tab."""
-            modes = [
-                ("ImageNet (Custom List)", wnid_input, root_custom, filter_custom),
-                ("ImageNet (Tree)", wnid_tree, root_input, filter_mode),
-                ("COCO", wnid_coco, root_coco, filter_coco),
-                ("Open Images", wnid_oi, root_oi, filter_oi)
-            ]
-            return modes[tab_index]
+        def get_current_mode_name(tab_index):
+            modes = ["ImageNet", "COCO", "Open Images"]
+            return modes[tab_index] if tab_index < len(modes) else "Unknown"
 
         # Tab change handler
         def on_tab_change(evt: gr.SelectData):
-            mode_info = get_current_inputs(evt.index)
-            logger.info(f"Tab changed to index {evt.index}, mode: {mode_info[0]}")
-            return mode_info[0]  # Return mode name
+            mode_name = get_current_mode_name(evt.index)
+            logger.info(f"Tab changed to index {evt.index}, mode: {mode_name}")
+            return mode_name
 
         tabs.select(on_tab_change, outputs=[current_mode])
 
@@ -409,55 +412,56 @@ def create_ui() -> gr.Blocks:
         file_upload.change(
             load_file_content,
             inputs=[file_upload],
-            outputs=[wnid_input]
+            outputs=[im_wnid_input]
         )
 
-        # Real-time validation (for custom list tab)
-        wnid_input.change(
-            lambda text: validate_inputs("ImageNet (Custom List)", text, "", 1)[1],
-            inputs=[wnid_input],
-            outputs=[validation_status]
-        )
+        # Real-time validation (ImageNet)
+        def run_validation_im(strat, wnid, root):
+            valid, msg = validate_inputs("ImageNet", strat, wnid, root, 1)
+            return msg
 
-        # Dispatch logic to handle multiple tabs with one button
+        im_input_triggers = [im_strategy, im_wnid_input, im_root]
+        for trig in im_input_triggers:
+            trig.change(run_validation_im, inputs=[im_strategy, im_wnid_input, im_root], outputs=[validation_status])
+
+        # Dispatch logic
         def dispatch_preview(mode,
-                           wc, rc, fc,
-                           wt, rt, ft,
-                           wco, rco, fco,
-                           woi, roi, foi,
+                           im_strat, im_rt, im_filt, im_wnid,
+                           co_strat, co_rt, co_filt, co_wnid,
+                           oi_strat, oi_rt, oi_filt, oi_wnid,
                            depth):
-            if mode == "ImageNet (Custom List)":
-                return on_preview(mode, wc, rc, fc, depth)
-            elif mode == "ImageNet (Tree)":
-                return on_preview(mode, wt, rt, ft, depth)
+
+            # Map inputs based on mode
+            if mode == "ImageNet":
+                return on_preview(mode, im_strat, im_wnid, im_rt, im_filt, depth)
             elif mode == "COCO":
-                return on_preview(mode, wco, rco, fco, depth)
+                return on_preview(mode, co_strat, co_wnid, co_rt, co_filt, depth)
             elif mode == "Open Images":
-                return on_preview(mode, woi, roi, foi, depth)
+                return on_preview(mode, oi_strat, oi_wnid, oi_rt, oi_filt, depth)
             return "# Error", "Unknown mode"
 
         def dispatch_save(mode,
-                          wc, rc, fc,
-                          wt, rt, ft,
-                          wco, rco, fco,
-                          woi, roi, foi,
+                          im_strat, im_rt, im_filt, im_wnid,
+                          co_strat, co_rt, co_filt, co_wnid,
+                          oi_strat, oi_rt, oi_filt, oi_wnid,
                           depth, path):
-             if mode == "ImageNet (Custom List)":
-                 return on_save(mode, wc, rc, fc, depth, path)
-             elif mode == "ImageNet (Tree)":
-                 return on_save(mode, wt, rt, ft, depth, path)
+             if mode == "ImageNet":
+                 return on_save(mode, im_strat, im_wnid, im_rt, im_filt, depth, path)
              elif mode == "COCO":
-                 return on_save(mode, wco, rco, fco, depth, path)
+                 return on_save(mode, co_strat, co_wnid, co_rt, co_filt, depth, path)
              elif mode == "Open Images":
-                 return on_save(mode, woi, roi, foi, depth, path)
+                 return on_save(mode, oi_strat, oi_wnid, oi_rt, oi_filt, depth, path)
              return "Error: Unknown mode"
 
         all_inputs = [
             current_mode,
-            wnid_input, root_custom, filter_custom,
-            wnid_tree, root_input, filter_mode,
-            wnid_coco, root_coco, filter_coco,
-            wnid_oi, root_oi, filter_oi,
+            # ImageNet
+            im_strategy, im_root, im_filter, im_wnid_input,
+            # COCO (dummies)
+            strat_coco, root_coco, filter_coco, wnid_coco,
+            # OI (dummies)
+            strat_oi, root_oi, filter_oi, wnid_oi,
+            # Global
             max_depth
         ]
 
