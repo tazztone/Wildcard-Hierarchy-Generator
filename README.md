@@ -1,34 +1,29 @@
 # Wildcard Hierarchy Generator
 
-A Python tool to generate WordNet-style hierarchy YAML files from various datasets (ImageNet, COCO, Open Images).
+A powerful Python tool designed to generate WordNet-style hierarchy YAML files from major computer vision datasets: **ImageNet**, **COCO**, and **Open Images**.
 
-## Features
+This tool is particularly useful for creating wildcard files for dynamic prompt generation in AI art tools (like Stable Diffusion web UI) or for organizing dataset labels hierarchically.
 
-- **ImageNet**: Generate hierarchies from ImageNet WNIDs (legacy) or the full ImageNet tree filtered to the standard 1000 classes.
-- **COCO**: Generate hierarchy from COCO categories (supports local optimization to avoid large downloads).
-- **Open Images**: Generate hierarchy from Open Images V7 data.
-- **Automation**: Includes scripts to generate all hierarchies in one go.
+## 🌟 Features
 
-## Datasets
+-   **ImageNet Support**:
+    -   **Tree Mode**: Generate a top-down hierarchy starting from any root synset (e.g., `entity.n.01`), with optional filtering for **ImageNet-1k** (1000 classes) or **ImageNet-21k**.
+    -   **Custom List Mode**: Build a bottom-up hierarchy from a custom list of WordNet IDs (WNIDs).
+-   **COCO Support**: Generate a clean hierarchy from the COCO 80-category object detection dataset.
+-   **Open Images Support**: Generate a deep hierarchy from the Open Images V7 dataset (600+ classes).
+-   **Dual Interface**:
+    -   **CLI**: Robust command-line interface for automation and scripting.
+    -   **GUI**: User-friendly Web UI based on Gradio for interactive exploration and preview.
+-   **Wildcard Optimized**: The output YAML is formatted specifically for wildcard compatibility (lists for leaf nodes, nested dicts for structure).
+-   **Smart Caching**: Automatically downloads and caches necessary metadata (WordNet, class lists) to a `downloads/` directory.
 
-Detailed information about the datasets supported by this tool:
+## 🚀 Installation
 
-### ImageNet
-- **Website**: [http://www.image-net.org/](http://www.image-net.org/)
-- **Overview**: ImageNet is an image database organized according to the WordNet hierarchy (currently only the nouns), in which each node of the hierarchy is depicted by hundreds and thousands of images. The project has been instrumental in advancing computer vision and deep learning research.
-- **Usage**: This tool uses NLTK's interface to WordNet to generate hierarchies based on ImageNet's structure (WordNet 3.0).
+### Prerequisites
+-   Python 3.8 or higher
+-   Git
 
-### COCO (Common Objects in Context)
-- **Website**: [https://cocodataset.org/](https://cocodataset.org/)
-- **Overview**: COCO is a large-scale object detection, segmentation, and captioning dataset. It features 80 object categories (like person, bicycle, car) and is widely used for benchmarking object detection models.
-- **Usage**: The hierarchy is flat (Categories -> Supercategories).
-
-### Open Images
-- **Website**: [https://storage.googleapis.com/openimages/web/index.html](https://storage.googleapis.com/openimages/web/index.html)
-- **Overview**: Open Images is a dataset of ~9 million images annotated with image-level labels, object bounding boxes, object segmentation masks, visual relationships, and localized narratives. It contains a much larger number of categories than COCO or ImageNet 1k.
-- **Usage**: The hierarchy is derived from the `bbox_labels_600_hierarchy.json` provided by Open Images.
-
-## Installation
+### Steps
 
 1.  **Clone the repository**:
     ```bash
@@ -36,16 +31,98 @@ Detailed information about the datasets supported by this tool:
     cd wildcards-wordnet-yaml
     ```
 
-2.  **Install dependencies**:
+2.  **Create a Virtual Environment (Recommended)**:
+    ```bash
+    # Linux/macOS
+    python3 -m venv venv
+    source venv/bin/activate
+
+    # Windows
+    python -m venv venv
+    venv\Scripts\activate
+    ```
+
+3.  **Install Dependencies**:
     ```bash
     pip install -r requirements.txt
     ```
 
-## Usage
+## 🖥️ Usage
 
-### Quick Start (Generate All)
+You can use the tool via the Command Line Interface (CLI) or the Graphical User Interface (GUI).
 
-To generate all hierarchies (ImageNet, COCO, Open Images) into the `output/` directory:
+### Graphical User Interface (GUI)
+
+Launch the interactive web interface:
+
+```bash
+python app_gradio.py
+```
+
+Open your browser at `http://localhost:7860`. The GUI allows you to:
+-   Select dataset modes via tabs.
+-   Visualize the hierarchy structure before saving.
+-   Upload WNID lists for custom generation.
+-   Configure depth and filtering options with real-time validation.
+
+### Command Line Interface (CLI)
+
+The `app.py` script serves as the main entry point.
+
+#### 1. ImageNet (Tree Mode)
+Generate a hierarchy top-down from a root node.
+
+```bash
+# Generate full WordNet hierarchy for animals, max depth 5
+python app.py imagenet-tree --root animal.n.01 --depth 5 --output animals.yaml
+
+# Generate hierarchy for ImageNet-1k classes only
+python app.py imagenet-tree --filter 1k --output imagenet1k.yaml
+
+# Generate hierarchy for ImageNet-21k classes
+python app.py imagenet-tree --filter 21k --output imagenet21k.yaml
+```
+
+**Arguments:**
+-   `--root`: The root synset to start from (default: `entity.n.01`).
+-   `--depth`: Maximum recursion depth before flattening.
+-   `--filter`: Filter classes: `none` (default), `1k`, or `21k`.
+-   `-o, --output`: Output YAML file path.
+
+#### 2. ImageNet (Custom List Mode)
+Generate a hierarchy from a specific list of WordNet IDs (WNIDs).
+
+```bash
+# From a file containing WNIDs
+python app.py imagenet-wnid input_wnids.txt -o my_custom_hierarchy.yaml
+
+# From command line arguments
+python app.py imagenet-wnid n02084071 n02121808 -o dogs_cats.yaml
+```
+
+**Arguments:**
+-   `inputs`: List of WNIDs or path to a text file containing them.
+-   `--depth`: Maximum depth for the resulting structure.
+-   `-o, --output`: Output YAML file path.
+
+#### 3. COCO
+Generate the hierarchy for the COCO dataset.
+
+```bash
+python app.py coco --output output/coco.yaml
+```
+*Note: This will download `annotations_trainval2017.zip` if `coco_categories.json` is not present in `downloads/`.*
+
+#### 4. Open Images
+Generate the hierarchy for Open Images V7.
+
+```bash
+python app.py openimages --output output/openimages.yaml
+```
+
+### Automation Scripts
+
+Helper scripts are provided in the `scripts/` directory to generate standard hierarchies in bulk.
 
 **Linux/macOS:**
 ```bash
@@ -57,76 +134,76 @@ bash scripts/generate_all.sh
 scripts\generate_all.bat
 ```
 
-The generated files will be:
-- `output/imagenet.yaml`
-- `output/coco.yaml`
-- `output/openimages.yaml`
+## 📂 Output Format
 
-### Manual Usage
+The tool generates YAML files optimized for wildcard usage.
 
-You can also run the tool manually via `app.py`.
+**Key Characteristics:**
+-   **Nested Structure**: Represents the hierarchy tree.
+-   **Leaf Nodes**: Represented as lists of strings (e.g., `[dog, puppy]`).
+-   **Mixed Nodes**: If a node has both children and is a valid category itself, it uses a self-reference pattern (though primarily the structure attempts to push items to leaves).
+-   **Flattening**: When `max_depth` is reached, all descendants are flattened into a single list under that node.
 
-#### ImageNet (Top-Down Tree)
-Generates a hierarchy starting from a root node, optionally filtered to the ImageNet 1k classes.
-
-```bash
-python app.py imagenet-tree --root entity.n.01 --depth 25 --filter --output output/imagenet.yaml
-```
-*   `--root`: The root synset (default: `animal.n.01`).
-*   `--depth`: Max recursion depth.
-*   `--filter`: Filter to include only paths leading to the standard ImageNet 1k classes.
-
-#### COCO
-Generates the COCO 80-category hierarchy.
-
-```bash
-python app.py coco --output output/coco.yaml
-```
-*   **Optimization**: If `coco_categories.json` is present in the root directory, the tool uses it instead of downloading the large (200MB+) annotations zip file.
-
-#### Open Images
-Generates the Open Images V7 hierarchy.
-
-```bash
-python app.py openimages --output output/openimages.yaml
-```
-
-#### Legacy ImageNet (Bottom-Up)
-Generates a hierarchy from a list of WNIDs provided in a file or arguments.
-
-```bash
-python app.py imagenet-wnid inputs.txt -o my_hierarchy.yaml
-```
-
-## Output Format
-
-The output is a YAML file representing the hierarchy tree:
-
+**Example:**
 ```yaml
 entity:
-    physical_entity:
-        object:
-            living_thing:
-                organism:
-                    animal:
-                        ...
-                            dog: {}
+  physical_entity:
+    object:
+      living_thing:
+        organism:
+          animal:
+            canine:
+              - dog
+              - wolf
+            feline:
+              - cat
+              - lion
 ```
 
-## Development
+## 🛠️ Development
+
+### Project Structure
+-   `app.py`: Core CLI logic and hierarchy generation algorithms.
+-   `app_gradio.py`: Gradio-based GUI implementation.
+-   `download_utils.py`: Helper functions for downloading and caching external datasets.
+-   `scripts/`: Automation scripts.
+-   `downloads/`: Default directory for cached data (created on first run).
+-   `output/`: Default directory for generated files.
+-   `tests/`: Unit tests (pytest).
 
 ### Running Tests
-
-To run the test suite:
+Run the test suite to ensure everything is working correctly:
 
 ```bash
 pytest tests/
 ```
 
-### Project Structure
+## ❓ Troubleshooting
 
-*   `app.py`: Main application logic.
-*   `download_utils.py`: Utilities for downloading external data.
-*   `scripts/`: Helper scripts for generation.
-*   `coco_categories.json`: Lightweight COCO category list (to avoid large downloads).
-*   `tests/`: Unit tests.
+**Q: "Resource 'wordnet' not found" error?**
+A: The tool attempts to download NLTK data automatically. If this fails (e.g., due to firewall), run python and execute:
+```python
+import nltk
+nltk.download('wordnet')
+nltk.download('omw-1.4')
+```
+
+**Q: Slow downloads?**
+A: The first run for COCO or Open Images may take time as it downloads dataset metadata. Subsequent runs will use the cached files in `downloads/`.
+
+**Q: Encoding errors on Windows?**
+A: Ensure your console supports UTF-8. The tool explicitly uses `utf-8` for file operations.
+
+## 🤝 Contributing
+
+Contributions are welcome! Please check `AGENTS.md` for coding standards and architectural guidelines.
+
+1.  Fork the repo.
+2.  Create a feature branch.
+3.  Commit your changes.
+4.  Push to the branch.
+5.  Create a Pull Request.
+
+## 📄 License
+
+[License Name]
