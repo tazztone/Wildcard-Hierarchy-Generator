@@ -11,7 +11,8 @@ import os
 import sys
 import json
 import csv
-from typing import List, Dict, Optional, Any, Set
+import functools
+from typing import List, Dict, Optional, Any, Set, Tuple
 
 import yaml
 import nltk
@@ -173,6 +174,7 @@ def load_wnids_list(inputs: List[str]) -> List[str]:
             wnids_to_process.append(input_str)
     return list(dict.fromkeys(wnids_to_process))
 
+@functools.lru_cache(maxsize=1)
 def load_imagenet_1k_set() -> Set[str]:
     logger.info("Ensuring ImageNet 1k list is available...")
     list_path = download_utils.ensure_imagenet_list(DOWNLOADS_DIR)
@@ -188,6 +190,7 @@ def load_imagenet_1k_set() -> Set[str]:
         logger.error(f"Failed to load valid WNIDs: {e}")
         return set()
 
+@functools.lru_cache(maxsize=1)
 def load_imagenet_21k_set() -> Set[str]:
     logger.info("Ensuring ImageNet 21k list is available...")
     ids_path, _ = download_utils.ensure_imagenet21k_data(DOWNLOADS_DIR)
@@ -204,6 +207,7 @@ def load_imagenet_21k_set() -> Set[str]:
 
 # --- ImageNet WNID (Bottom-Up) ---
 
+@functools.lru_cache(maxsize=10000)
 def get_synset_from_wnid(wnid: str) -> Optional[Any]:
     try:
         if len(wnid) < 2: return None
@@ -248,6 +252,7 @@ def generate_imagenet_wnid_hierarchy(wnids: List[str], max_depth: int = 10, max_
 
 # --- ImageNet Tree (Top-Down Recursive) ---
 
+@functools.lru_cache(maxsize=10000)
 def get_primary_synset(word: str) -> Optional[Any]:
     """Get only the first (most common) synset"""
     try:
@@ -361,7 +366,8 @@ def generate_imagenet_tree_hierarchy(root_str: str, max_depth: int, filter_ids: 
 
 # --- COCO Logic ---
 
-def generate_coco_hierarchy(max_depth: int = 10) -> Dict[str, Any]:
+@functools.lru_cache(maxsize=1)
+def load_coco_categories_cached() -> List[Dict[str, Any]]:
     local_coco_path = os.path.join(DOWNLOADS_DIR, "coco_categories.json")
     if os.path.exists(local_coco_path):
         with open(local_coco_path, 'r', encoding='utf-8') as f:
@@ -371,6 +377,10 @@ def generate_coco_hierarchy(max_depth: int = 10) -> Dict[str, Any]:
         with open(json_path, 'r', encoding='utf-8') as f:
             data = json.load(f)
         categories = data['categories']
+    return categories
+
+def generate_coco_hierarchy(max_depth: int = 10) -> Dict[str, Any]:
+    categories = load_coco_categories_cached()
 
     hierarchy = {}
     for cat in tqdm(categories, desc="Processing COCO"):
@@ -405,7 +415,8 @@ def parse_openimages_node(node, id_to_name):
     else:
         return name
 
-def generate_openimages_hierarchy(max_depth: int = 10) -> Dict[str, Any]:
+@functools.lru_cache(maxsize=1)
+def load_openimages_data_cached() -> Tuple[Dict[str, Any], Dict[str, str]]:
     hierarchy_path, classes_path = download_utils.ensure_openimages_data(DOWNLOADS_DIR)
 
     id_to_name = {}
@@ -416,6 +427,11 @@ def generate_openimages_hierarchy(max_depth: int = 10) -> Dict[str, Any]:
 
     with open(hierarchy_path, 'r', encoding='utf-8') as f:
         data = json.load(f)
+
+    return data, id_to_name
+
+def generate_openimages_hierarchy(max_depth: int = 10) -> Dict[str, Any]:
+    data, id_to_name = load_openimages_data_cached()
 
     full_hierarchy = parse_openimages_node(data, id_to_name)
     return flatten_hierarchy_post_process(full_hierarchy, 0, max_depth)
