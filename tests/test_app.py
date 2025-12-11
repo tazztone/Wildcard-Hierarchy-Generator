@@ -46,6 +46,8 @@ def mock_wn_fixture(mock_synset):
     """
     Mocks app.wn safely by replacing the object directly.
     """
+    app.get_synset_from_wnid.cache_clear()
+
     original_wn = app.wn
     mock_wn = MagicMock()
     app.wn = mock_wn
@@ -56,6 +58,7 @@ def mock_wn_fixture(mock_synset):
     yield mock_wn
 
     app.wn = original_wn
+    app.get_synset_from_wnid.cache_clear()
 
 def test_get_synset_from_wnid_valid(mock_wn_fixture, mock_synset):
     # Setup specific return for this test if needed, or use fixture default

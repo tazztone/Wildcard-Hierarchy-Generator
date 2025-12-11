@@ -4,11 +4,17 @@ import app
 
 @pytest.fixture
 def mock_wn_filtering():
+    app.get_primary_synset.cache_clear()
+    app.get_synset_from_wnid.cache_clear()
+
     original_wn = app.wn
     mock_wn = MagicMock()
     app.wn = mock_wn
     yield mock_wn
     app.wn = original_wn
+
+    app.get_primary_synset.cache_clear()
+    app.get_synset_from_wnid.cache_clear()
 
 def test_get_primary_synset(mock_wn_filtering):
     # Mock wn.synsets
