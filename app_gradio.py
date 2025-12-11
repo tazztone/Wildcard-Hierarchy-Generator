@@ -175,8 +175,11 @@ def on_preview(mode: str, strategy: str, wnid_text: str, root_synset: str,
 def on_save(mode: str, strategy: str, wnid_text: str, root_synset: str,
             filter_mode: str, max_depth: int, output_path: str,
             strict_filter: bool, blacklist: bool, hypernym_depth: int,
-            progress: gr.Progress = gr.Progress()) -> str:
-    """Handle save button click."""
+            progress: gr.Progress = gr.Progress()) -> Tuple[str, Optional[str]]:
+    """
+    Handle save button click.
+    Returns (status_message, file_path_if_successful).
+    """
     try:
         progress(0, desc="Validating inputs...")
         # Normalize inputs
@@ -187,7 +190,7 @@ def on_save(mode: str, strategy: str, wnid_text: str, root_synset: str,
         is_valid, message = validate_inputs(mode, strategy, wnid_text, root_synset, max_depth)
         if not is_valid:
             gr.Warning(message)
-            return message
+            return message, None
 
         # Validate output path
         output_path = (output_path or "wildcards_output.yaml").strip()
@@ -211,13 +214,55 @@ def on_save(mode: str, strategy: str, wnid_text: str, root_synset: str,
         logger.info(f"Save completed: {output_path}")
         progress(1.0, desc="Done!")
         gr.Info(f"Saved to {output_path}")
-        return status
+        return status, output_path
 
     except Exception as e:
         error_msg = f"❌ Save failed: {str(e)}"
         logger.error(error_msg)
         gr.Error(f"Save failed: {str(e)}")
-        return error_msg
+        return error_msg, None
+
+# ============================================================================
+# DISPATCH LOGIC (Module Level)
+# ============================================================================
+
+def dispatch_preview(mode,
+                    im_strat, im_rt, im_filt, im_wnid, im_strict, im_blacklist, im_hyp_depth,
+                    co_strat, co_rt, co_filt, co_wnid,
+                    oi_strat, oi_rt, oi_filt, oi_wnid,
+                    depth,
+                    progress=gr.Progress()):
+
+    # Map inputs based on mode
+    if mode == "ImageNet":
+        return on_preview(mode, im_strat, im_wnid, im_rt, im_filt, depth, im_strict, im_blacklist, im_hyp_depth, progress)
+    elif mode == "COCO":
+        # Pass dummies for strict/blacklist/hyp_depth
+        return on_preview(mode, co_strat, co_wnid, co_rt, co_filt, depth, True, False, 0, progress)
+    elif mode == "Open Images":
+        return on_preview(mode, oi_strat, oi_wnid, oi_rt, oi_filt, depth, True, False, 0, progress)
+    return "# Error", "Unknown mode"
+
+def dispatch_save(mode,
+                  im_strat, im_rt, im_filt, im_wnid, im_strict, im_blacklist, im_hyp_depth,
+                  co_strat, co_rt, co_filt, co_wnid,
+                  oi_strat, oi_rt, oi_filt, oi_wnid,
+                  depth, path,
+                  progress=gr.Progress()):
+     status = "Error: Unknown mode"
+     file_path = None
+
+     if mode == "ImageNet":
+         status, file_path = on_save(mode, im_strat, im_wnid, im_rt, im_filt, depth, path, im_strict, im_blacklist, im_hyp_depth, progress)
+     elif mode == "COCO":
+         status, file_path = on_save(mode, co_strat, co_wnid, co_rt, co_filt, depth, path, True, False, 0, progress)
+     elif mode == "Open Images":
+         status, file_path = on_save(mode, oi_strat, oi_wnid, oi_rt, oi_filt, depth, path, True, False, 0, progress)
+
+     if file_path:
+         return status, gr.update(value=file_path, visible=True)
+     else:
+         return status, gr.update(visible=False)
 
 def get_mode_from_index(index: int) -> str:
     """Get mode name from tab index."""
@@ -430,20 +475,29 @@ def create_ui() -> gr.Blocks:
         gr.Markdown("---")
         gr.Markdown("## 📤 Output")
 
-        out_status = gr.Textbox(
-            label="Status",
-            value="",
-            interactive=False,
-            show_label=True,
-            lines=2,
-            show_copy_button=True
-        )
+        with gr.Row():
+             out_status = gr.Textbox(
+                 label="Status",
+                 value="",
+                 interactive=False,
+                 show_label=True,
+                 lines=2,
+                 show_copy_button=True,
+                 scale=3
+             )
+             btn_download = gr.DownloadButton(
+                 "📥 Download YAML",
+                 visible=False,
+                 variant="secondary",
+                 scale=1
+             )
 
         with gr.Accordion("📄 YAML Preview", open=True):
             out_preview = gr.Code(
                 language="yaml",
                 label="Generated YAML",
-                lines=20
+                lines=20,
+                value="# Click 'Preview' to see the generated hierarchy here..."
             )
 
         # Examples
@@ -485,38 +539,6 @@ def create_ui() -> gr.Blocks:
         for trig in im_input_triggers:
             trig.change(run_validation_im, inputs=[im_strategy, im_wnid_input, im_root], outputs=[validation_status])
 
-        # Dispatch logic
-        def dispatch_preview(mode,
-                           im_strat, im_rt, im_filt, im_wnid, im_strict, im_blacklist, im_hyp_depth,
-                           co_strat, co_rt, co_filt, co_wnid,
-                           oi_strat, oi_rt, oi_filt, oi_wnid,
-                           depth,
-                           progress=gr.Progress()):
-
-            # Map inputs based on mode
-            if mode == "ImageNet":
-                return on_preview(mode, im_strat, im_wnid, im_rt, im_filt, depth, im_strict, im_blacklist, im_hyp_depth, progress)
-            elif mode == "COCO":
-                # Pass dummies for strict/blacklist/hyp_depth
-                return on_preview(mode, co_strat, co_wnid, co_rt, co_filt, depth, True, False, 0, progress)
-            elif mode == "Open Images":
-                return on_preview(mode, oi_strat, oi_wnid, oi_rt, oi_filt, depth, True, False, 0, progress)
-            return "# Error", "Unknown mode"
-
-        def dispatch_save(mode,
-                          im_strat, im_rt, im_filt, im_wnid, im_strict, im_blacklist, im_hyp_depth,
-                          co_strat, co_rt, co_filt, co_wnid,
-                          oi_strat, oi_rt, oi_filt, oi_wnid,
-                          depth, path,
-                          progress=gr.Progress()):
-             if mode == "ImageNet":
-                 return on_save(mode, im_strat, im_wnid, im_rt, im_filt, depth, path, im_strict, im_blacklist, im_hyp_depth, progress)
-             elif mode == "COCO":
-                 return on_save(mode, co_strat, co_wnid, co_rt, co_filt, depth, path, True, False, 0, progress)
-             elif mode == "Open Images":
-                 return on_save(mode, oi_strat, oi_wnid, oi_rt, oi_filt, depth, path, True, False, 0, progress)
-             return "Error: Unknown mode"
-
         all_inputs = [
             current_mode,
             # ImageNet
@@ -538,7 +560,7 @@ def create_ui() -> gr.Blocks:
         btn_save.click(
             dispatch_save,
             inputs=all_inputs + [output_path],
-            outputs=[out_status]
+            outputs=[out_status, btn_download]
         )
 
     return demo
