@@ -70,7 +70,15 @@ The project is structured around a core logic module (`app.py`), a GUI layer (`a
 -   **Gradio State**: `gr.State` initialization must match the UI default values. Mismatches can cause "NoneType" errors in event handlers.
 -   **Wildcard Format**: The format is sensitive. `{"key": ["item"]}` is different from `{"key": {"item": {}}}`. Use `convert_to_wildcard_format` to standardize.
 
-### 6. Adding New Datasets
+### 6. Target End Goal & Compatibility
+
+The primary goal of the generated YAML files is to ensure full compatibility with the **[ComfyUI-Impact-Pack](https://github.com/ltdrdata/ComfyUI-extension-tutorials/blob/Main/ComfyUI-Impact-Pack/tutorial/ImpactWildcard.md)** extension for Stable Diffusion.
+
+-   **Structure**: The output must adhere to the Impact Wildcard format: nested dictionaries for directories/categories, and lists of strings for leaf items.
+-   **Usage**: Users access these via wildcards like `__category/subcategory/item__`.
+-   **Performance Consideration**: The Impact Pack documentation notes that YAML files are pre-loaded at startup. For extremely large collections, a directory structure of TXT files is preferred for on-demand loading. While this tool currently focuses on YAML generation, future developments should consider supporting a "TXT Directory" export mode to support massive datasets efficiently.
+
+### 7. Adding New Datasets
 
 1.  Add a loader in `download_utils.py`.
 2.  Implement a `generate_<dataset>_hierarchy` function in `app.py`.

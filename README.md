@@ -136,10 +136,11 @@ scripts\generate_all.bat
 
 ## 📂 Output Format
 
-The tool generates YAML files optimized for wildcard usage.
+The tool generates YAML files optimized for wildcard usage, specifically targeting compatibility with **[ComfyUI-Impact-Pack](https://github.com/ltdrdata/ComfyUI-extension-tutorials/blob/Main/ComfyUI-Impact-Pack/tutorial/ImpactWildcard.md)**.
 
 **Key Characteristics:**
--   **Nested Structure**: Represents the hierarchy tree.
+-   **ImpactWildcard Compatible**: The structure corresponds directly to the directory/file path format expected by the Impact Pack's wildcard system (e.g., `__category/subcategory/item__`).
+-   **Nested Structure**: Represents the hierarchy tree as nested dictionaries.
 -   **Leaf Nodes**: Represented as lists of strings (e.g., `[dog, puppy]`).
 -   **Mixed Nodes**: If a node has both children and is a valid category itself, it uses a self-reference pattern (though primarily the structure attempts to push items to leaves).
 -   **Flattening**: When `max_depth` is reached, all descendants are flattened into a single list under that node.
